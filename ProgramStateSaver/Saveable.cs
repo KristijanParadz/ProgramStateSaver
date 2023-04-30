@@ -29,11 +29,15 @@ namespace ProgramStateSaver
                 writer.WriteStartElement(xmlElementName);
                 foreach (var field in fieldsToWrite)
                 {
-                    writer.WriteElementString(field.Name, field.GetValue(this).ToString());
+                    var value = field.GetValue(this);
+                    if (value == null) continue;
+                    writer.WriteElementString(field.Name, value.ToString());
                 }
                 foreach (var property in propertiesToWrite)
                 {
-                    writer.WriteElementString(property.Name, property.GetValue(this).ToString());
+                    var value = property.GetValue(this);
+                    if (value == null) continue;
+                    writer.WriteElementString(property.Name, value.ToString());
                 }
                 writer.WriteEndElement();
                 writer.Flush();
