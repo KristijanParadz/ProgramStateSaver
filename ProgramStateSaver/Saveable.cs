@@ -16,8 +16,9 @@ namespace ProgramStateSaver
             var properties = this.GetType().GetProperties();
 
             // filter fields and properties that have custom attribute Save
-            var fieldsToWrite = fields.Where(field => field.GetCustomAttributes(true).Any(attribute => attribute.GetType().Name == "SaveAttribute")).ToArray();
-            var propertiesToWrite = properties.Where(property => property.GetCustomAttributes(true).Any(attribute => attribute.GetType().Name == "SaveAttribute")).ToArray();
+            Type saveAttributeType = typeof(SaveAttribute);
+            var fieldsToWrite = fields.Where(field => field.IsDefined(saveAttributeType,false)).ToArray();
+            var propertiesToWrite = properties.Where(property => property.IsDefined(saveAttributeType, false)).ToArray();
 
             string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
             string xmlElementName = this.GetType().Name;
