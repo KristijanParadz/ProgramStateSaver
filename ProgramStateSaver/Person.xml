@@ -1,1 +1,37 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Person><FirstName>John</FirstName><Age>28</Age></Person>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Person>
+  <FirstName>John</FirstName>
+  <lista>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+    <Int32>3</Int32>
+  </lista>
+  <matrix>
+    <List>
+      <Int32>1</Int32>
+      <Int32>2</Int32>
+      <Int32>3</Int32>
+    </List>
+    <List>
+      <Int32>4</Int32>
+      <Int32>5</Int32>
+      <Int32>6</Int32>
+    </List>
+  </matrix>
+  <array>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+    <Int32>3</Int32>
+  </array>
+  <arrayLista>
+    <String>asfd</String>
+    <Int32>1</Int32>
+    <Boolean>True</Boolean>
+    <ArrayList>
+      <Int32>1</Int32>
+      <Int32>2</Int32>
+      <String>sfdgv</String>
+    </ArrayList>
+  </arrayLista>
+  <Age>28</Age>
+</Person>
