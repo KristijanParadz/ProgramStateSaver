@@ -7,16 +7,16 @@
     <Int32>3</Int32>
   </lista>
   <matrix>
-    <List>
+    <ListInt32>
       <Int32>1</Int32>
       <Int32>2</Int32>
       <Int32>3</Int32>
-    </List>
-    <List>
+    </ListInt32>
+    <ListInt32>
       <Int32>4</Int32>
       <Int32>5</Int32>
       <Int32>6</Int32>
-    </List>
+    </ListInt32>
   </matrix>
   <array>
     <Int32>1</Int32>
@@ -33,5 +33,29 @@
       <String>sfdgv</String>
     </ArrayList>
   </arrayLista>
+  <hashTable>
+    <KeyValuePair>
+      <Key>sdfv</Key>
+      <Value>System.Collections.Generic.List`1[System.Int32]</Value>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Key>2</Key>
+      <Value>dsvg</Value>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Key>1</Key>
+      <Value>3</Value>
+    </KeyValuePair>
+  </hashTable>
+  <dictionary>
+    <KeyValuePair>
+      <Key>1</Key>
+      <Value>1</Value>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Key>2</Key>
+      <Value>3</Value>
+    </KeyValuePair>
+  </dictionary>
   <Age>28</Age>
 </Person>

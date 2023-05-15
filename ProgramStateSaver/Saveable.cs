@@ -64,7 +64,7 @@ namespace ProgramStateSaver
             if (value is IList && type.IsGenericType)
             {
                 Type listType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? type.Name.Substring(0,4) : name);
+                writer.WriteStartElement(name == "default" ? type.Name.Substring(0,4) + listType.Name : name);
                 if (isSimple(listType))
                 {
                     foreach (var element in (IList)value)
@@ -74,6 +74,38 @@ namespace ProgramStateSaver
                 {
                     foreach (var element in (IList)value)
                         writeComplex(element, writer);
+                }
+                writer.WriteEndElement();
+                return;
+            }
+
+            // type is non-generic Hashtable
+            if(type == typeof(Hashtable))
+            {
+                Hashtable hashTable = (Hashtable)value;
+                writer.WriteStartElement(name == "default" ? type.Name : name);
+                foreach (DictionaryEntry entry in hashTable)
+                {
+                    writer.WriteStartElement("KeyValuePair");
+                    writer.WriteElementString("Key", entry.Key.ToString());
+                    writer.WriteElementString("Value", entry.Value.ToString());
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                return;
+            }
+
+
+            // type is generic dictionary
+            if (value is IDictionary && type.IsGenericType)
+            {
+                writer.WriteStartElement(name == "default" ? type.Name.Substring(0, 10) : name);
+                foreach (DictionaryEntry entry in (IDictionary)value)
+                {
+                    writer.WriteStartElement("KeyValuePair");
+                    writer.WriteElementString("Key", entry.Key.ToString());
+                    writer.WriteElementString("Value", entry.Value.ToString());
+                    writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
                 return;

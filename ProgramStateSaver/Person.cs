@@ -30,12 +30,20 @@ namespace ProgramStateSaver
         [Save]
         public ArrayList arrayLista;
 
+        [Save]
+        public Hashtable hashTable;
+
+        [Save]
+        public Dictionary<int, int> dictionary;
+
         public Person() {
             FirstName = "Default first name";
             LastName = "Default last name";
             this.lista = new List<int> { 1, 2, 3 };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
+            this.hashTable = new Hashtable() { { 1,3 }, { 2, "dsvg" }, { "dyfbdyfcb", true  } };
+            dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2,3 } };
         }
         public Person(string firstName, string lastName, int age)
         {
@@ -45,6 +53,8 @@ namespace ProgramStateSaver
             this.lista = new List<int> { 1, 2, 3 };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 } , new List<int> { 4, 5, 6 } };
+            this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "sdfv", new List<int> { 1, 2, 3 } } };
+            dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2, 3 } };
         }
     }
 }
