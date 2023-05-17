@@ -34,7 +34,7 @@ namespace ProgramStateSaver
             {
                 Type arrayType = type.GetElementType();
                 Array array = (Array)value;
-                writer.WriteStartElement(name == "default" ? arrayType.Name + "Array"  : name);
+                writer.WriteStartElement(name == "default" ?  "Array"  : name);
                 if (isSimple(arrayType))
                 {
                     foreach (var element in array)
@@ -52,7 +52,7 @@ namespace ProgramStateSaver
             // type is non-generic ArrayList
             if(type == typeof(ArrayList))
             {
-                writer.WriteStartElement(name == "default" ? type.Name : name);
+                writer.WriteStartElement(name == "default" ? "ArrayList" : name);
                 ArrayList arrayList = (ArrayList)value;
                 foreach (var element in arrayList)
                     writeComplex(element, writer);
@@ -64,7 +64,7 @@ namespace ProgramStateSaver
             if (value is IList && type.IsGenericType)
             {
                 Type listType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? type.Name.Substring(0,4) + listType.Name : name);
+                writer.WriteStartElement(name == "default" ? "List" : name);
                 if (isSimple(listType))
                 {
                     foreach (var element in (IList)value)
@@ -83,7 +83,7 @@ namespace ProgramStateSaver
             if(type == typeof(Hashtable))
             {
                 Hashtable hashTable = (Hashtable)value;
-                writer.WriteStartElement(name == "default" ? type.Name : name);
+                writer.WriteStartElement(name == "default" ? "Hashtable" : name);
                 foreach (DictionaryEntry entry in hashTable)
                 {
                     writer.WriteStartElement("KeyValuePair");
@@ -99,13 +99,32 @@ namespace ProgramStateSaver
             // type is generic dictionary
             if (value is IDictionary && type.IsGenericType)
             {
-                writer.WriteStartElement(name == "default" ? type.Name.Substring(0, 10) : name);
+                writer.WriteStartElement(name == "default" ? "Dictionary" : name);
                 foreach (DictionaryEntry entry in (IDictionary)value)
                 {
                     writer.WriteStartElement("KeyValuePair");
                     writer.WriteElementString("Key", entry.Key.ToString());
                     writer.WriteElementString("Value", entry.Value.ToString());
                     writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                return;
+            }
+
+            // type is generic Hashset
+            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(HashSet<>))
+            {
+                Type setType = type.GetGenericArguments()[0];
+                writer.WriteStartElement(name == "default" ? "Hashset" : name);
+                if (isSimple(setType))
+                {
+                    foreach (var element in (IEnumerable)value)
+                        writer.WriteElementString(setType.Name, element.ToString());
+                }
+                else
+                {
+                    foreach (var element in (IEnumerable)value)
+                        writeComplex(element, writer);
                 }
                 writer.WriteEndElement();
                 return;
