@@ -132,7 +132,7 @@ namespace ProgramStateSaver
 
         }
 
-        public void WriteXML()
+        public void WriteXML(string filePath)
         {
             // get all fields and properties of an object
             var fields = this.GetType().GetFields();
@@ -143,10 +143,7 @@ namespace ProgramStateSaver
             var fieldsToWrite = fields.Where(field => field.IsDefined(saveAttributeType,false)).ToArray();
             var propertiesToWrite = properties.Where(property => property.IsDefined(saveAttributeType, false)).ToArray();
 
-            string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
             string xmlElementName = this.GetType().Name;
-            string filePath = Path.Combine(projectRoot, $"{xmlElementName}.xml");
-
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
