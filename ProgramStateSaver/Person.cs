@@ -22,6 +22,9 @@ namespace ProgramStateSaver
         public List<int> lista;
 
         [Save]
+        public SortedList<int,string> sortedList;
+
+        [Save]
         public List<List<int>> matrix;
 
         [Save]
@@ -43,8 +46,10 @@ namespace ProgramStateSaver
             FirstName = "Default first name";
             LastName = "Default last name";
             this.lista = new List<int> { 1, 2, 3 };
+            this.sortedList= new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
-            this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<List<int>>() { { new List<int>() { 1, 2 } } } };
+            this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
+            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
             this.hashTable = new Hashtable() { { 1,3 }, { 2, "dsvg" }, { "dyfbdyfcb", true  } };
             dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2,3 } };
             hashSet = new HashSet<int>() { 1,2,3};
@@ -55,8 +60,10 @@ namespace ProgramStateSaver
             LastName = lastName;
             Age = age;
             this.lista = new List<int> { 1, 2, 3 };
+            this.sortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
-            this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<List<int>>() { { new List<int>() { 1, 2 } } } };
+            this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
+            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
             this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
             dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2, 3 } };
             hashSet = new HashSet<int>() { 1, 2, 3 };

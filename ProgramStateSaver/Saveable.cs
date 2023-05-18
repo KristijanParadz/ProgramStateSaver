@@ -64,7 +64,7 @@ namespace ProgramStateSaver
             if (value is IList && type.IsGenericType)
             {
                 Type listType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? "List" : name);
+                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
                 if (isSimple(listType))
                 {
                     foreach (var element in (IList)value)
@@ -99,7 +99,7 @@ namespace ProgramStateSaver
             // type is generic dictionary
             if (value is IDictionary && type.IsGenericType)
             {
-                writer.WriteStartElement(name == "default" ? "Dictionary" : name);
+                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
                 foreach (DictionaryEntry entry in (IDictionary)value)
                 {
                     writer.WriteStartElement("KeyValuePair");

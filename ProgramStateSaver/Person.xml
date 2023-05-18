@@ -6,6 +6,16 @@
     <Int32>2</Int32>
     <Int32>3</Int32>
   </lista>
+  <sortedList>
+    <KeyValuePair>
+      <Key>1</Key>
+      <Value>dgbv</Value>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Key>2</Key>
+      <Value>adf</Value>
+    </KeyValuePair>
+  </sortedList>
   <matrix>
     <List>
       <Int32>1</Int32>
@@ -33,11 +43,19 @@
       <String>sfdgv</String>
     </ArrayList>
     <Hashset>
-      <List>
-        <Int32>1</Int32>
-        <Int32>2</Int32>
-      </List>
+      <Int32>1</Int32>
+      <Int32>2</Int32>
     </Hashset>
+    <SortedList>
+      <KeyValuePair>
+        <Key>1</Key>
+        <Value>dgbv</Value>
+      </KeyValuePair>
+      <KeyValuePair>
+        <Key>2</Key>
+        <Value>adf</Value>
+      </KeyValuePair>
+    </SortedList>
   </arrayLista>
   <hashTable>
     <KeyValuePair>
