@@ -22,7 +22,10 @@ namespace ProgramStateSaver
         public List<int> lista;
 
         [Save]
-        public SortedList<int,string> sortedList;
+        public SortedList<int,string> genericSortedList;
+
+        [Save]
+        public SortedList nonGenericSortedList;
 
         [Save]
         public List<List<int>> matrix;
@@ -46,7 +49,8 @@ namespace ProgramStateSaver
             FirstName = "Default first name";
             LastName = "Default last name";
             this.lista = new List<int> { 1, 2, 3 };
-            this.sortedList= new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } };
+            this.genericSortedList= new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } };
+            this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
@@ -60,7 +64,8 @@ namespace ProgramStateSaver
             LastName = lastName;
             Age = age;
             this.lista = new List<int> { 1, 2, 3 };
-            this.sortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
+            this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
+            this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};

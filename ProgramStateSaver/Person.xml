@@ -6,7 +6,7 @@
     <Int32>2</Int32>
     <Int32>3</Int32>
   </lista>
-  <sortedList>
+  <genericSortedList>
     <KeyValuePair>
       <Key>1</Key>
       <Value>dgbv</Value>
@@ -15,7 +15,17 @@
       <Key>2</Key>
       <Value>adf</Value>
     </KeyValuePair>
-  </sortedList>
+  </genericSortedList>
+  <nonGenericSortedList>
+    <KeyValuePair>
+      <Key>1</Key>
+      <Value>dgbv</Value>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Key>2</Key>
+      <Value>adf</Value>
+    </KeyValuePair>
+  </nonGenericSortedList>
   <matrix>
     <List>
       <Int32>1</Int32>
