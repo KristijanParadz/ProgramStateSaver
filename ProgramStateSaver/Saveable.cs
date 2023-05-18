@@ -172,8 +172,8 @@ namespace ProgramStateSaver
                     Type type = field.FieldType;
                     var saveAttribute = field.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
                     bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 && 
-                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value.ToString(), @"^[a-zA-Z_][a-zA-Z0-9_]*$");
-                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value.ToString() : field.Name;
+                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : field.Name;
                     if (isSimple(type))
                     {
 
@@ -190,8 +190,8 @@ namespace ProgramStateSaver
                     Type type = property.PropertyType;
                     var saveAttribute = property.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
                     bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
-                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value.ToString(), @"^[a-zA-Z_][a-zA-Z0-9_]*$");
-                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value.ToString() : property.Name;
+                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : property.Name;
                     if (isSimple(type))
                     {
 
