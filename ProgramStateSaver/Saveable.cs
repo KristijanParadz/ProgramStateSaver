@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -169,19 +170,36 @@ namespace ProgramStateSaver
                     var value = field.GetValue(this);
                     if (value == null) continue;
                     Type type = field.FieldType;
+                    var saveAttribute = field.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
+                    bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 && 
+                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value.ToString(), @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value.ToString() : field.Name;
                     if (isSimple(type))
                     {
-                        writer.WriteElementString(field.Name, value.ToString());
+
+                        writer.WriteElementString(name, value.ToString());
                         continue;
                     }
                     //type is complex
-                    writeComplex(value, writer, field.Name);
+                    writeComplex(value, writer, name);
                 }
                 foreach (var property in propertiesToWrite)
                 {
                     var value = property.GetValue(this);
                     if (value == null) continue;
-                    writer.WriteElementString(property.Name, value.ToString());
+                    Type type = property.PropertyType;
+                    var saveAttribute = property.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
+                    bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
+                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value.ToString(), @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value.ToString() : property.Name;
+                    if (isSimple(type))
+                    {
+
+                        writer.WriteElementString(name, value.ToString());
+                        continue;
+                    }
+                    //type is complex
+                    writeComplex(value, writer, name);
                 }
                 writer.WriteEndElement();
                 writer.Flush();

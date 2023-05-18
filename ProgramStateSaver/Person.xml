@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Person>
   <FirstName>John</FirstName>
+  <SatisfyingLastName>King</SatisfyingLastName>
   <lista>
     <Int32>1</Int32>
     <Int32>2</Int32>
@@ -91,10 +92,10 @@
       <Value>3</Value>
     </KeyValuePair>
   </dictionary>
+  <Age>28</Age>
   <hashSet>
     <Int32>1</Int32>
     <Int32>2</Int32>
     <Int32>3</Int32>
   </hashSet>
-  <Age>28</Age>
 </Person>

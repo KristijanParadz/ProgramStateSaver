@@ -10,9 +10,10 @@ namespace ProgramStateSaver
 {
     internal class Person : Saveable
     {
-        [Save]
+        [Save("Not satisfying first name")]
         public string FirstName;
 
+        [Save("SatisfyingLastName")]
         public string LastName;
 
         [Save]
@@ -43,7 +44,7 @@ namespace ProgramStateSaver
         public Dictionary<int, int> dictionary;
 
         [Save]
-        public HashSet<int> hashSet;
+        public HashSet<int> hashSet { get; set; }
 
         public Person() {
             FirstName = "Default first name";
