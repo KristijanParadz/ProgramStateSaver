@@ -60,24 +60,6 @@ namespace ProgramStateSaver
                 return;
             }
 
-            // type is generic List
-            if (value is IList && type.IsGenericType)
-            {
-                Type listType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
-                if (isSimple(listType))
-                {
-                    foreach (var element in (IList)value)
-                        writer.WriteElementString(listType.Name, element.ToString());
-                }
-                else
-                {
-                    foreach (var element in (IList)value)
-                        writeComplex(element, writer);
-                }
-                writer.WriteEndElement();
-                return;
-            }
 
             // type is non-generic Hashtable
             if(type == typeof(Hashtable))
@@ -128,9 +110,9 @@ namespace ProgramStateSaver
 
 
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
-            // type is generic HashSet or generic SortedSet or generic Stack or generic Queue
+            // type is generic HashSet or generic SortedSet or generic Stack or generic Queue or generic List
             if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>) ||
-                genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>)))
+                genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>) || value is IList))
             {
                 Type genericType = type.GetGenericArguments()[0];
                 writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
