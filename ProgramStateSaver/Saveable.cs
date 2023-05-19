@@ -127,11 +127,12 @@ namespace ProgramStateSaver
                 return;
             }
 
-            // type is generic Hashset
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(HashSet<>))
+            // type is generic HashSet or generic SortedSet
+            Type genericTypeDefinition = type.GetGenericTypeDefinition();
+            if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>)))
             {
                 Type setType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? "Hashset" : name);
+                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
                 if (isSimple(setType))
                 {
                     foreach (var element in (IEnumerable)value)

@@ -53,10 +53,10 @@
       <Int32>2</Int32>
       <String>sfdgv</String>
     </ArrayList>
-    <Hashset>
+    <HashSet>
       <Int32>1</Int32>
       <Int32>2</Int32>
-    </Hashset>
+    </HashSet>
     <SortedList>
       <KeyValuePair>
         <Key>1</Key>
@@ -92,6 +92,11 @@
       <Value>3</Value>
     </KeyValuePair>
   </dictionary>
+  <sortedSet>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+    <Int32>3</Int32>
+  </sortedSet>
   <Age>28</Age>
   <hashSet>
     <Int32>1</Int32>
