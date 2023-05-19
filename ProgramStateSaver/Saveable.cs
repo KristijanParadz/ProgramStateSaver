@@ -50,12 +50,11 @@ namespace ProgramStateSaver
                 return;
             }
 
-            // type is non-generic ArrayList
-            if(type == typeof(ArrayList))
+            // type is non-generic ArrayList or non-generic stack or non-generic queue
+            if(type == typeof(ArrayList) || type == typeof(Stack) || type == typeof(Queue))
             {
-                writer.WriteStartElement(name == "default" ? "ArrayList" : name);
-                ArrayList arrayList = (ArrayList)value;
-                foreach (var element in arrayList)
+                writer.WriteStartElement(name == "default" ? type.Name : name);
+                foreach (var element in (IEnumerable)value)
                     writeComplex(element, writer);
                 writer.WriteEndElement();
                 return;
@@ -127,15 +126,6 @@ namespace ProgramStateSaver
                 return;
             }
 
-            // type is non generic stack or non generic queue
-            if (type == typeof(Stack) || type == typeof(Queue))
-            {
-                writer.WriteStartElement(name == "default" ? type.Name : name);
-                foreach (var element in (IEnumerable)value)
-                    writeComplex(element, writer);
-                writer.WriteEndElement();
-                return;
-            }
 
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
             // type is generic HashSet or generic SortedSet
