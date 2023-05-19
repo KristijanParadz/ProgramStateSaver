@@ -49,6 +49,15 @@ namespace ProgramStateSaver
         [Save]
         public SortedSet<int> sortedSet;
 
+        [Save]
+        public Stack<int> genericStack;
+
+        [Save]
+        public Queue<int> genericQueue;
+
+        [Save]
+        public Stack nonGenericStack;
+
         public Person() {
             FirstName = "Default first name";
             LastName = "Default last name";
@@ -62,6 +71,19 @@ namespace ProgramStateSaver
             dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2,3 } };
             hashSet = new HashSet<int>() { 1,2,3};
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
+            genericStack = new Stack<int>();
+            genericStack.Push(1);
+            genericStack.Push(2);
+            genericQueue = new Queue<int>();
+            genericQueue.Enqueue(1);
+            genericQueue.Enqueue(2);
+            nonGenericStack = new Stack();
+            nonGenericStack.Push(1);
+            nonGenericStack.Push("adfscv");
+            Queue randomQueue = new Queue();
+            randomQueue.Enqueue(1);
+            randomQueue.Enqueue("bf");
+            nonGenericStack.Push(randomQueue);
         }
         public Person(string firstName, string lastName, int age)
         {
@@ -78,6 +100,19 @@ namespace ProgramStateSaver
             dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2, 3 } };
             hashSet = new HashSet<int>() { 1, 2, 3 };
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
+            genericStack = new Stack<int>();
+            genericStack.Push(1);
+            genericStack.Push(2);
+            genericQueue = new Queue<int>();
+            genericQueue.Enqueue(1);
+            genericQueue.Enqueue(2);
+            nonGenericStack = new Stack();
+            nonGenericStack.Push(1);
+            nonGenericStack.Push("adfscv");
+            Queue randomQueue = new Queue();
+            randomQueue.Enqueue(1);
+            randomQueue.Enqueue("bf");
+            nonGenericStack.Push(randomQueue);
         }
     }
 }

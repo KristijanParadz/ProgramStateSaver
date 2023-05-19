@@ -127,8 +127,18 @@ namespace ProgramStateSaver
                 return;
             }
 
-            // type is generic HashSet or generic SortedSet
+            // type is non generic stack or non generic queue
+            if (type == typeof(Stack) || type == typeof(Queue))
+            {
+                writer.WriteStartElement(name == "default" ? type.Name : name);
+                foreach (var element in (IEnumerable)value)
+                    writeComplex(element, writer);
+                writer.WriteEndElement();
+                return;
+            }
+
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
+            // type is generic HashSet or generic SortedSet
             if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>)))
             {
                 Type setType = type.GetGenericArguments()[0];
@@ -137,6 +147,25 @@ namespace ProgramStateSaver
                 {
                     foreach (var element in (IEnumerable)value)
                         writer.WriteElementString(setType.Name, element.ToString());
+                }
+                else
+                {
+                    foreach (var element in (IEnumerable)value)
+                        writeComplex(element, writer);
+                }
+                writer.WriteEndElement();
+                return;
+            }
+
+            // type is generic stack or generic queue
+            if (type.IsGenericType && (genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>)))
+            {
+                Type genericType = type.GetGenericArguments()[0];
+                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
+                if (isSimple(genericType))
+                {
+                    foreach (var element in (IEnumerable)value)
+                        writer.WriteElementString(genericType.Name, element.ToString());
                 }
                 else
                 {
