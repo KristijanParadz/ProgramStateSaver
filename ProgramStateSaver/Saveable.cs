@@ -128,27 +128,9 @@ namespace ProgramStateSaver
 
 
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
-            // type is generic HashSet or generic SortedSet
-            if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>)))
-            {
-                Type setType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
-                if (isSimple(setType))
-                {
-                    foreach (var element in (IEnumerable)value)
-                        writer.WriteElementString(setType.Name, element.ToString());
-                }
-                else
-                {
-                    foreach (var element in (IEnumerable)value)
-                        writeComplex(element, writer);
-                }
-                writer.WriteEndElement();
-                return;
-            }
-
-            // type is generic stack or generic queue
-            if (type.IsGenericType && (genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>)))
+            // type is generic HashSet or generic SortedSet or generic Stack or generic Queue
+            if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>) ||
+                genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>)))
             {
                 Type genericType = type.GetGenericArguments()[0];
                 writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
