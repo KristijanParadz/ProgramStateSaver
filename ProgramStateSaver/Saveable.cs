@@ -151,20 +151,20 @@ namespace ProgramStateSaver
         public void WriteXML(string filePath)
         {
             // get all fields and properties of an object
-            var fields = this.GetType().GetFields();
-            var properties = this.GetType().GetProperties();
+            Type elementType = this.GetType();
+            var fields = elementType.GetFields();
+            var properties = elementType.GetProperties();
 
             // filter fields and properties that have custom attribute Save
             Type saveAttributeType = typeof(SaveAttribute);
             var fieldsToWrite = fields.Where(field => field.CustomAttributes.Any(customAttr=>customAttr.AttributeType == saveAttributeType)).ToArray();
             var propertiesToWrite = properties.Where(property => property.CustomAttributes.Any(customAttr => customAttr.AttributeType == saveAttributeType)).ToArray();
 
-            string xmlElementName = this.GetType().Name;
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
-                writer.WriteStartElement(xmlElementName);
+                writer.WriteStartElement(elementType.Name);
                 foreach (var field in fieldsToWrite)
                 {
                     var value = field.GetValue(this);
