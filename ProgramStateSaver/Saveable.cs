@@ -33,7 +33,7 @@ namespace ProgramStateSaver
             //type is Array
             if (type.IsArray)
             {
-                Type arrayType = type.GetElementType();
+                Type arrayType = type.GetElementType()!;
                 Array array = (Array)value;
                 writer.WriteStartElement(name == "default" ?  "Array"  : name);
                 if (isSimple(arrayType))
@@ -60,54 +60,22 @@ namespace ProgramStateSaver
                 return;
             }
 
-
-            // type is non-generic Hashtable
-            if(type == typeof(Hashtable))
+            // type implements IDictionary (Dictionary, SortedList, Hashtable)
+            if (value is IDictionary)
             {
-                Hashtable hashTable = (Hashtable)value;
-                writer.WriteStartElement(name == "default" ? "Hashtable" : name);
-                foreach (DictionaryEntry entry in hashTable)
-                {
-                    writer.WriteStartElement("KeyValuePair");
-                    writer.WriteElementString("Key", entry.Key.ToString());
-                    writer.WriteElementString("Value", entry.Value.ToString());
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
-                return;
-            }
-
-
-            // type is generic dictionary or generic sorted list
-            if (value is IDictionary && type.IsGenericType)
-            {
-                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
+                writer.WriteStartElement(name == "default" ? (type.IsGenericType ? type.Name.Split('`')[0] : type.Name) : name);
                 foreach (DictionaryEntry entry in (IDictionary)value)
                 {
                     writer.WriteStartElement("KeyValuePair");
                     writer.WriteElementString("Key", entry.Key.ToString());
-                    writer.WriteElementString("Value", entry.Value.ToString());
+                    writer.WriteElementString("Value", entry.Value!.ToString());
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
                 return;
             }
 
-            // type is non generic sorted list
-            if (type == typeof(SortedList))
-            {
-                writer.WriteStartElement(name == "default" ? "SortedList" : name);
-                foreach (DictionaryEntry entry in (SortedList)value)
-                {
-                    writer.WriteStartElement("KeyValuePair");
-                    writer.WriteElementString("Key", entry.Key.ToString());
-                    writer.WriteElementString("Value", entry.Value.ToString());
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
-                return;
-            }
-
+            if (!type.IsGenericType) return;
 
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
             // type is generic HashSet or generic SortedSet or generic Stack or generic Queue or generic List
