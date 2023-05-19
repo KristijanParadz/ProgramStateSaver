@@ -1,7 +1,7 @@
-Dodao sam mogucnost spremanja slozenih tipova. Za sada program podrzava spremanje List<T>, Array, ArrayList,
-Dictionary<TKey,TValue>, Hashtable, SortedList<TKey, TValue>, SortedList, HashSet<T>, SortedSet<T>, Stack<T>,
-Stack, Queue<int>, Queue. 
-Spremanje ovakvih struktura radio sam pomocu rekurzije tako da podrzava i spremanje npr. List<List<int>>.
+Dodao sam mogucnost spremanja slozenih tipova. Za sada program podrzava spremanje List<>, Array, ArrayList,
+Dictionary<TKey,TValue>, Hashtable, SortedList<TKey, TValue>, SortedList, HashSet<>, SortedSet<>, Stack<>,
+Stack, Queue<>, Queue. 
+Spremanje ovakvih struktura radio sam pomocu rekurzije tako da podrzava i spremanje npr. List<List<>>.
 Kod struktura koje implementiraju IDictionary nije podrzano spremanje ako su Key ili Value slozeni tipovi jer 
 cini mi se da je tako i u built-in XML serializeru.
 Pretpostavljam da cu jos morati mijenjati spremanje prema tome kako mi bude trebalo za citanje.
