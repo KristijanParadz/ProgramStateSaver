@@ -109,8 +109,8 @@ namespace ProgramStateSaver
 
             // filter fields and properties that have custom attribute Save
             Type saveAttributeType = typeof(SaveAttribute);
-            var fieldsToWrite = fields.Where(field => field.CustomAttributes.Any(customAttr=>customAttr.AttributeType == saveAttributeType)).ToArray();
-            var propertiesToWrite = properties.Where(property => property.CustomAttributes.Any(customAttr => customAttr.AttributeType == saveAttributeType)).ToArray();
+            var fieldsToWrite = fields.Where(field => field.IsDefined(saveAttributeType));
+            var propertiesToWrite = properties.Where(property => property.IsDefined(saveAttributeType));
 
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
