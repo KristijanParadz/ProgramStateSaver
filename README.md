@@ -1,8 +1,10 @@
-Kreirao sam console aplikaciju. Napravio sam jednostavnu klasu Person s dva fielda i jednim propertyjem.
-Za početak sam samo u main dijelu (Program.cs) u console ispisao fields i properties klase Person pomocu refleksije.
-Zatim sam napravio custom attribute Save koji se moze postaviti samo na field ili property.
-Postavio sam Save attribute na jedan field i jedan property klase Person te sam u main dijelu za sve fields i properties ispisao sve custom atribute.
-Napravio sam klasu Saveable koja ima metode writeXML i readXML. Klasa Person inherita klasu Saveable.
-U writeXML sam napravio jednostavno zapisivanje u XML tako da sam iterirao po svim fields i properties
-objekta na kojemu je pozvana funkcija koji imaju custom attribute Save i zapisao ih u XML file koji bi se trebao spremiti u isti folder gdje je i source code.
- U readXML() sam samo u console ispisao sadrzaj xml filea.
+Dodao sam mogucnost spremanja slozenih tipova. Za sada program podrzava spremanje List<>, Array, ArrayList,
+Dictionary<TKey,TValue>, Hashtable, SortedList<TKey, TValue>, SortedList, HashSet<>, SortedSet<>, Stack<>,
+Stack, Queue<>, Queue. 
+Spremanje ovakvih struktura radio sam pomocu rekurzije tako da podrzava i spremanje npr. List<List<>>.
+Kod struktura koje implementiraju IDictionary nije podrzano spremanje ako su Key ili Value slozeni tipovi jer 
+cini mi se da je tako i u built-in XML serializeru.
+Pretpostavljam da cu jos morati mijenjati spremanje prema tome kako mi bude trebalo za citanje.
+Dodao sam mogucnost da korisnik sam odabere gdje zeli spremiti file.
+Dodao sam mogucnost da pri zadavanju atributa korisnik moze fieldu ili propertyju dodijeliti custom ime.
+Probao sam reducirati broj poziva na reflection koliko god je bilo moguce.
