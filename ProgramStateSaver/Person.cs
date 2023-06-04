@@ -58,6 +58,9 @@ namespace ProgramStateSaver
         [Save]
         public Stack nonGenericStack;
 
+        [Save]
+        public Tuple<int, string> genericTuple;
+
         public Person() {
             FirstName = "Default first name";
             LastName = "Default last name";
@@ -84,6 +87,7 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
+            genericTuple = Tuple.Create(1, "dsvgc");
         }
         public Person(string firstName, string lastName, int age)
         {
@@ -113,6 +117,7 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
+            genericTuple = Tuple.Create(1, "dsvgc");
         }
     }
 }

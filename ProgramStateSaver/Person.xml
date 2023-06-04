@@ -70,16 +70,16 @@
   </arrayLista>
   <hashTable>
     <KeyValuePair>
+      <String>dyfbdyfcb</String>
+      <Boolean>True</Boolean>
+    </KeyValuePair>
+    <KeyValuePair>
       <Int32>2</Int32>
       <String>dsvg</String>
     </KeyValuePair>
     <KeyValuePair>
       <Int32>1</Int32>
       <Int32>3</Int32>
-    </KeyValuePair>
-    <KeyValuePair>
-      <String>dyfbdyfcb</String>
-      <Boolean>True</Boolean>
     </KeyValuePair>
   </hashTable>
   <dictionary>
@@ -113,6 +113,10 @@
     <String>adfscv</String>
     <Int32>1</Int32>
   </nonGenericStack>
+  <genericTuple>
+    <Int32>1</Int32>
+    <String>dsvgc</String>
+  </genericTuple>
   <Age>28</Age>
   <hashSet>
     <Int32>1</Int32>

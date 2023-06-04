@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -78,7 +79,13 @@ namespace ProgramStateSaver
             }
         }
 
-        private void WriteNonGeneric(object value, XmlWriter writer, Type type, string name)
+        private void WriteTuple(ITuple tuple, XmlWriter writer)
+        {
+            for (int i = 0; i<tuple.Length; i++)
+                WriteValue(tuple[i]!, writer, tuple[i]!.GetType());
+        }
+
+        private void WriteNonGeneric(object value, XmlWriter writer, Type type)
         {
             // type is Array
             if (type.IsArray)
@@ -93,7 +100,7 @@ namespace ProgramStateSaver
                 WriteNonGenericDictionary((IDictionary)value, writer);
         }
 
-        private void WriteGeneric(object value, XmlWriter writer, Type type, string name)
+        private void WriteGeneric(object value, XmlWriter writer, Type type)
         {
             // type implements IDictionary (Dictionary, SortedList)
             if (value is IDictionary)
@@ -102,6 +109,9 @@ namespace ProgramStateSaver
             // type is List, HashSet, SortedSet, Stack, Queue
             else if (IsGenericWithOneArgument(type.GetGenericTypeDefinition(), value))
                 WriteGenericEnumerable((IEnumerable)value, writer, type);
+
+            else if (value is ITuple)
+                WriteTuple((ITuple)value, writer);
         }
 
         private void WriteValue(object value, XmlWriter writer, Type type, string name = "default")
@@ -122,9 +132,9 @@ namespace ProgramStateSaver
             writer.WriteStartElement(realName);
 
             if (type.IsGenericType)
-                WriteGeneric(value, writer, type, realName);
+                WriteGeneric(value, writer, type);
             else
-                WriteNonGeneric(value, writer, type, realName);
+                WriteNonGeneric(value, writer, type);
 
             writer.WriteEndElement();
         }
