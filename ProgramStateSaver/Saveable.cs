@@ -12,92 +12,121 @@ namespace ProgramStateSaver
 {
     public class Saveable
     {
-        private bool isSimple(Type type)
+        private bool IsSimple(Type type)
         {
             return (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime)) ? true : false;
         }
 
-        private void writeComplex(object value, XmlWriter writer, string name = "default" ) {
-            if (value == null) return;
-            Type type = value.GetType();
+        private bool IsGenericWithOneArgument(Type genericTypeDefinition, object value)
+        {
+            if (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>) ||
+                genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>) || value is IList) 
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void WriteSimple(object value, XmlWriter writer, string name)
+        {
+            writer.WriteElementString(name, value.ToString());
+        }
+
+        private void WriteArray(Array array, XmlWriter writer, Type type)
+        {
+            if (array.Length == 0) return;
+            Type arrayType = type.GetElementType()!;
+            foreach (var element in array)
+                WriteValue(element, writer, arrayType);
+        }
+
+        private void WriteNonGenericEnumerable(IEnumerable enumerable, XmlWriter writer)
+        {
+            foreach (var element in enumerable)
+                WriteValue(element,writer,element.GetType());
+        }
+
+        private void WriteGenericEnumerable(IEnumerable enumerable, XmlWriter writer, Type type)
+        {
+            Type genericType = type.GetGenericArguments()[0];
+            foreach (var element in enumerable)
+                WriteValue(element, writer, genericType);
+        }
+
+        private void WriteNonGenericDictionary(IDictionary dictionary, XmlWriter writer)
+        {
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                writer.WriteStartElement("KeyValuePair");
+                WriteValue(entry.Key, writer, entry.Key.GetType());
+                WriteValue(entry.Value!, writer, entry.Value!.GetType());
+                writer.WriteEndElement();
+            }
+        }
+
+        private void WriteGenericDictionary(IDictionary dictionary, XmlWriter writer, Type type)
+        {
+            if (dictionary.Count == 0) return;
+            Type keyType = type.GetGenericArguments()[0];
+            Type valueType = type.GetGenericArguments()[1];
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                writer.WriteStartElement("KeyValuePair");
+                WriteValue(entry.Key, writer, keyType);
+                WriteValue(entry.Value!, writer, valueType);
+                writer.WriteEndElement();
+            }
+        }
+
+        private void WriteNonGeneric(object value, XmlWriter writer, Type type, string name)
+        {
+            // type is Array
+            if (type.IsArray)
+                WriteArray((Array)value, writer, type);
+
+            // type is non-generic ArrayList, Stack or Queue
+            else if (type == typeof(ArrayList) || type == typeof(Stack) || type == typeof(Queue))
+                WriteNonGenericEnumerable((IEnumerable)value, writer);
+
+            // type is non-generic Hashtable or non-generic SortedList
+            else if (type == typeof(Hashtable) || type == typeof(SortedList))
+                WriteNonGenericDictionary((IDictionary)value, writer);
+        }
+
+        private void WriteGeneric(object value, XmlWriter writer, Type type, string name)
+        {
+            // type implements IDictionary (Dictionary, SortedList)
+            if (value is IDictionary)
+                WriteGenericDictionary((IDictionary)value, writer, type);
+
+            // type is List, HashSet, SortedSet, Stack, Queue
+            else if (IsGenericWithOneArgument(type.GetGenericTypeDefinition(), value))
+                WriteGenericEnumerable((IEnumerable)value, writer, type);
+        }
+
+        private void WriteValue(object value, XmlWriter writer, Type type, string name = "default")
+        {
+            // set proper name
+            string realName = name;
+            if (name == "default")
+                realName = type.IsGenericType ? type.Name.Split('`')[0] : type.Name;
 
             // type is simple
-            if (isSimple(type))
+            if (IsSimple(type))
             {
-                writer.WriteElementString( name=="default" ? type.Name : name, value.ToString());
+                WriteSimple(value, writer, realName);
                 return;
             }
 
             // type is complex
+            writer.WriteStartElement(realName);
 
-            //type is Array
-            if (type.IsArray)
-            {
-                Type arrayType = type.GetElementType()!;
-                Array array = (Array)value;
-                writer.WriteStartElement(name == "default" ?  "Array"  : name);
-                if (isSimple(arrayType))
-                {
-                    foreach (var element in array)
-                        writer.WriteElementString(arrayType.Name, element.ToString());
-                }
-                else
-                {
-                    foreach (var element in array)
-                        writeComplex(element, writer);
-                }
-                writer.WriteEndElement();
-                return;
-            }
+            if (type.IsGenericType)
+                WriteGeneric(value, writer, type, realName);
+            else
+                WriteNonGeneric(value, writer, type, realName);
 
-            // type is non-generic ArrayList or non-generic stack or non-generic queue
-            if(type == typeof(ArrayList) || type == typeof(Stack) || type == typeof(Queue))
-            {
-                writer.WriteStartElement(name == "default" ? type.Name : name);
-                foreach (var element in (IEnumerable)value)
-                    writeComplex(element, writer);
-                writer.WriteEndElement();
-                return;
-            }
-
-            // type implements IDictionary (Dictionary, SortedList, Hashtable)
-            if (value is IDictionary)
-            {
-                writer.WriteStartElement(name == "default" ? (type.IsGenericType ? type.Name.Split('`')[0] : type.Name) : name);
-                foreach (DictionaryEntry entry in (IDictionary)value)
-                {
-                    writer.WriteStartElement("KeyValuePair");
-                    writer.WriteElementString("Key", entry.Key.ToString());
-                    writer.WriteElementString("Value", entry.Value!.ToString());
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
-                return;
-            }
-
-            if (!type.IsGenericType) return;
-
-            Type genericTypeDefinition = type.GetGenericTypeDefinition();
-            // type is generic HashSet or generic SortedSet or generic Stack or generic Queue or generic List
-            if (type.IsGenericType && (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>) ||
-                genericTypeDefinition == typeof(Stack<>) || genericTypeDefinition == typeof(Queue<>) || value is IList))
-            {
-                Type genericType = type.GetGenericArguments()[0];
-                writer.WriteStartElement(name == "default" ? type.Name.Split('`')[0] : name);
-                if (isSimple(genericType))
-                {
-                    foreach (var element in (IEnumerable)value)
-                        writer.WriteElementString(genericType.Name, element.ToString());
-                }
-                else
-                {
-                    foreach (var element in (IEnumerable)value)
-                        writeComplex(element, writer);
-                }
-                writer.WriteEndElement();
-                return;
-            }
-
+            writer.WriteEndElement();
         }
 
         public void WriteXML(string filePath)
@@ -126,14 +155,8 @@ namespace ProgramStateSaver
                     bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 && 
                         Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
                     string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : field.Name;
-                    if (isSimple(type))
-                    {
 
-                        writer.WriteElementString(name, value.ToString());
-                        continue;
-                    }
-                    //type is complex
-                    writeComplex(value, writer, name);
+                    WriteValue(value, writer, type, name);
                 }
                 foreach (var property in propertiesToWrite)
                 {
@@ -144,14 +167,8 @@ namespace ProgramStateSaver
                     bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
                         Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
                     string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : property.Name;
-                    if (isSimple(type))
-                    {
 
-                        writer.WriteElementString(name, value.ToString());
-                        continue;
-                    }
-                    //type is complex
-                    writeComplex(value, writer, name);
+                    WriteValue(value, writer, type, name);
                 }
                 writer.WriteEndElement();
                 writer.Flush();

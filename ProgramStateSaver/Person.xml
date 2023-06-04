@@ -9,22 +9,22 @@
   </lista>
   <genericSortedList>
     <KeyValuePair>
-      <Key>1</Key>
-      <Value>dgbv</Value>
+      <Int32>1</Int32>
+      <String>dgbv</String>
     </KeyValuePair>
     <KeyValuePair>
-      <Key>2</Key>
-      <Value>adf</Value>
+      <Int32>2</Int32>
+      <String>adf</String>
     </KeyValuePair>
   </genericSortedList>
   <nonGenericSortedList>
     <KeyValuePair>
-      <Key>1</Key>
-      <Value>dgbv</Value>
+      <Int32>1</Int32>
+      <String>dgbv</String>
     </KeyValuePair>
     <KeyValuePair>
-      <Key>2</Key>
-      <Value>adf</Value>
+      <Int32>2</Int32>
+      <String>adf</String>
     </KeyValuePair>
   </nonGenericSortedList>
   <matrix>
@@ -59,37 +59,37 @@
     </HashSet>
     <SortedList>
       <KeyValuePair>
-        <Key>1</Key>
-        <Value>dgbv</Value>
+        <Int32>1</Int32>
+        <String>dgbv</String>
       </KeyValuePair>
       <KeyValuePair>
-        <Key>2</Key>
-        <Value>adf</Value>
+        <Int32>2</Int32>
+        <String>adf</String>
       </KeyValuePair>
     </SortedList>
   </arrayLista>
   <hashTable>
     <KeyValuePair>
-      <Key>dyfbdyfcb</Key>
-      <Value>True</Value>
+      <Int32>2</Int32>
+      <String>dsvg</String>
     </KeyValuePair>
     <KeyValuePair>
-      <Key>2</Key>
-      <Value>dsvg</Value>
+      <Int32>1</Int32>
+      <Int32>3</Int32>
     </KeyValuePair>
     <KeyValuePair>
-      <Key>1</Key>
-      <Value>3</Value>
+      <String>dyfbdyfcb</String>
+      <Boolean>True</Boolean>
     </KeyValuePair>
   </hashTable>
   <dictionary>
     <KeyValuePair>
-      <Key>1</Key>
-      <Value>1</Value>
+      <Int32>1</Int32>
+      <Int32>1</Int32>
     </KeyValuePair>
     <KeyValuePair>
-      <Key>2</Key>
-      <Value>3</Value>
+      <Int32>2</Int32>
+      <Int32>3</Int32>
     </KeyValuePair>
   </dictionary>
   <sortedSet>
