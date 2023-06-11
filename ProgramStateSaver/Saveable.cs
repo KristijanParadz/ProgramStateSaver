@@ -13,6 +13,32 @@ namespace ProgramStateSaver
 {
     public class Saveable
     {
+        // properties for cacheing 
+        private Type ElementType { get; set; }
+
+        private static Dictionary<Type,(FieldInfo[], PropertyInfo[])> FieldsAndProperties;
+
+        private static Type SaveAttributeType { get; set; }
+
+
+        static Saveable()
+        {
+            FieldsAndProperties = new Dictionary<Type, (FieldInfo[], PropertyInfo[])>();
+            SaveAttributeType = typeof(SaveAttribute);
+        }
+        protected Saveable()
+        {
+            ElementType = this.GetType();
+            // if type of this object has been saved before, it already has fields and properties cached 
+            if (FieldsAndProperties.ContainsKey(ElementType))
+                return;
+            // if it wasn't saved yet, cache fields and properties
+            var fields = ElementType.GetFields().Where(field => field.IsDefined(SaveAttributeType)).ToArray();
+            var properties = ElementType.GetProperties().Where(property => property.IsDefined(SaveAttributeType)).ToArray();
+            FieldsAndProperties[ElementType] = (fields, properties);
+            
+        }
+
         private bool IsSimple(Type type)
         {
             return (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime)) ? true : false;
@@ -68,8 +94,9 @@ namespace ProgramStateSaver
         private void WriteGenericDictionary(IDictionary dictionary, XmlWriter writer, Type type)
         {
             if (dictionary.Count == 0) return;
-            Type keyType = type.GetGenericArguments()[0];
-            Type valueType = type.GetGenericArguments()[1];
+            var genericArguments = type.GetGenericArguments();
+            Type keyType = genericArguments[0];
+            Type valueType = genericArguments[1];
             foreach (DictionaryEntry entry in dictionary)
             {
                 writer.WriteStartElement("KeyValuePair");
@@ -141,22 +168,16 @@ namespace ProgramStateSaver
 
         public void WriteXML(string filePath)
         {
-            // get all fields and properties of an object
-            Type elementType = this.GetType();
-            var fields = elementType.GetFields();
-            var properties = elementType.GetProperties();
-
-            // filter fields and properties that have custom attribute Save
             Type saveAttributeType = typeof(SaveAttribute);
-            var fieldsToWrite = fields.Where(field => field.IsDefined(saveAttributeType));
-            var propertiesToWrite = properties.Where(property => property.IsDefined(saveAttributeType));
+            XmlWriterSettings settings = new XmlWriterSettings { Indent = true };
 
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
-                writer.WriteStartElement(elementType.Name);
-                foreach (var field in fieldsToWrite)
+                writer.WriteStartElement(ElementType.Name);
+                FieldInfo[] fields = FieldsAndProperties[ElementType].Item1;
+                PropertyInfo[] properties = FieldsAndProperties[ElementType].Item2;
+
+                foreach (var field in fields)
                 {
                     var value = field.GetValue(this);
                     if (value == null) continue;
@@ -168,7 +189,7 @@ namespace ProgramStateSaver
 
                     WriteValue(value, writer, type, name);
                 }
-                foreach (var property in propertiesToWrite)
+                foreach (var property in properties)
                 {
                     var value = property.GetValue(this);
                     if (value == null) continue;
@@ -185,17 +206,34 @@ namespace ProgramStateSaver
             }
         }
 
-        public void readXML()
-        {
-            string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            string xmlElementName = this.GetType().Name;
-            string filePath = Path.Combine(projectRoot, $"{xmlElementName}.xml");
-            XmlTextReader reader = new XmlTextReader(filePath);
 
-            XmlDocument doc = new XmlDocument();
-            reader.Read();
-            doc.Load(reader);
-            doc.Save(Console.Out);
+        public void readXML(string filePath)
+        {
+            using (XmlReader reader = XmlReader.Create(filePath))
+            {
+                reader.ReadStartElement();
+                // ovo odvojit u novu fju
+                while (reader.NodeType != XmlNodeType.EndElement)
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
+                    {
+                        string propertyOrFieldName = reader.LocalName;
+                        MemberInfo[] members = ElementType.GetMember(propertyOrFieldName); // ovo drugacije
+                        if (members.Length == 0)
+                        {
+                            reader.Skip();
+                            continue;
+                        }
+                        
+
+                    }
+                    reader.Read();
+                }
+            }
+            // XmlTextReader reader_for_console = new XmlTextReader(filePath);
+            // XmlDocument doc = new XmlDocument();
+            // doc.Load(reader_for_console);
+            // doc.Save(Console.Out);
         }
     }
 }
