@@ -1,32 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Person>
   <FirstName>John</FirstName>
-  <SatisfyingLastName>King</SatisfyingLastName>
+  <LastName>King</LastName>
+  <Number>13</Number>
   <lista>
     <Int32>1</Int32>
     <Int32>2</Int32>
     <Int32>3</Int32>
   </lista>
-  <genericSortedList>
-    <KeyValuePair>
-      <Int32>1</Int32>
-      <String>dgbv</String>
-    </KeyValuePair>
-    <KeyValuePair>
-      <Int32>2</Int32>
-      <String>adf</String>
-    </KeyValuePair>
-  </genericSortedList>
-  <nonGenericSortedList>
-    <KeyValuePair>
-      <Int32>1</Int32>
-      <String>dgbv</String>
-    </KeyValuePair>
-    <KeyValuePair>
-      <Int32>2</Int32>
-      <String>adf</String>
-    </KeyValuePair>
-  </nonGenericSortedList>
   <matrix>
     <List>
       <Int32>1</Int32>
@@ -36,91 +17,7 @@
     <List>
       <Int32>4</Int32>
       <Int32>5</Int32>
-      <Int32>6</Int32>
+      <Int32>9</Int32>
     </List>
   </matrix>
-  <array>
-    <Int32>1</Int32>
-    <Int32>2</Int32>
-    <Int32>3</Int32>
-  </array>
-  <arrayLista>
-    <String>asfd</String>
-    <Int32>1</Int32>
-    <Boolean>True</Boolean>
-    <ArrayList>
-      <Int32>1</Int32>
-      <Int32>2</Int32>
-      <String>sfdgv</String>
-    </ArrayList>
-    <HashSet>
-      <Int32>1</Int32>
-      <Int32>2</Int32>
-    </HashSet>
-    <SortedList>
-      <KeyValuePair>
-        <Int32>1</Int32>
-        <String>dgbv</String>
-      </KeyValuePair>
-      <KeyValuePair>
-        <Int32>2</Int32>
-        <String>adf</String>
-      </KeyValuePair>
-    </SortedList>
-  </arrayLista>
-  <hashTable>
-    <KeyValuePair>
-      <String>dyfbdyfcb</String>
-      <Boolean>True</Boolean>
-    </KeyValuePair>
-    <KeyValuePair>
-      <Int32>2</Int32>
-      <String>dsvg</String>
-    </KeyValuePair>
-    <KeyValuePair>
-      <Int32>1</Int32>
-      <Int32>3</Int32>
-    </KeyValuePair>
-  </hashTable>
-  <dictionary>
-    <KeyValuePair>
-      <Int32>1</Int32>
-      <Int32>1</Int32>
-    </KeyValuePair>
-    <KeyValuePair>
-      <Int32>2</Int32>
-      <Int32>3</Int32>
-    </KeyValuePair>
-  </dictionary>
-  <sortedSet>
-    <Int32>1</Int32>
-    <Int32>2</Int32>
-    <Int32>3</Int32>
-  </sortedSet>
-  <genericStack>
-    <Int32>2</Int32>
-    <Int32>1</Int32>
-  </genericStack>
-  <genericQueue>
-    <Int32>1</Int32>
-    <Int32>2</Int32>
-  </genericQueue>
-  <nonGenericStack>
-    <Queue>
-      <Int32>1</Int32>
-      <String>bf</String>
-    </Queue>
-    <String>adfscv</String>
-    <Int32>1</Int32>
-  </nonGenericStack>
-  <genericTuple>
-    <Int32>1</Int32>
-    <String>dsvgc</String>
-  </genericTuple>
-  <Age>28</Age>
-  <hashSet>
-    <Int32>1</Int32>
-    <Int32>2</Int32>
-    <Int32>3</Int32>
-  </hashSet>
 </Person>

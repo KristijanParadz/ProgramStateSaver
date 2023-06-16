@@ -44,6 +44,11 @@ namespace ProgramStateSaver
             return (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime)) ? true : false;
         }
 
+        private (FieldInfo[], PropertyInfo[]) GetFieldsAndProperties(Type type)
+        {
+            return (FieldsAndProperties[type].Item1, FieldsAndProperties[type].Item2);
+        }
+
         private bool IsGenericWithOneArgument(Type genericTypeDefinition, object value)
         {
             if (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>) ||
@@ -174,8 +179,7 @@ namespace ProgramStateSaver
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
                 writer.WriteStartElement(ElementType.Name);
-                FieldInfo[] fields = FieldsAndProperties[ElementType].Item1;
-                PropertyInfo[] properties = FieldsAndProperties[ElementType].Item2;
+                (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);       
 
                 foreach (var field in fields)
                 {
@@ -206,34 +210,122 @@ namespace ProgramStateSaver
             }
         }
 
+        private IList ReadList(XmlReader reader, Type listType)
+        {
+            reader.ReadStartElement();
+            Type genericListType = typeof(List<>).MakeGenericType(listType);
+            IList list = (IList)Activator.CreateInstance(genericListType)!;
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                list.Add(ReadValue(reader, listType));
+            }
+            reader.ReadEndElement();
+            return list;
+        }
 
-        public void readXML(string filePath)
+        private object ReadGeneric(XmlReader reader, Type type)
+        {
+            Type genericTypeDefinition = type.GetGenericTypeDefinition();
+            if (genericTypeDefinition == typeof(List<>))
+                return ReadList(reader, type.GetGenericArguments()[0]);
+            return "";
+        }
+
+        private object ReadValue(XmlReader reader,Type type)
+        {
+            if (IsSimple(type))
+            {
+                string value = reader.ReadElementContentAsString();
+                return Convert.ChangeType(value, type);
+            }
+
+            // type is not simple
+            if (type.IsGenericType)
+                return ReadGeneric(reader, type);
+
+            return "";
+        }
+
+        private void ReadField(XmlReader reader, FieldInfo field) { 
+            Console.WriteLine(field.Name);
+            Type fieldType = field.FieldType;
+            field.SetValue(this, ReadValue(reader,fieldType));
+        }
+
+        private void ReadProperty(XmlReader reader, PropertyInfo property)
+        {
+            Console.WriteLine(property.Name);
+            reader.Read();
+        }
+
+        private void ReadFieldsAndProperties(XmlReader reader)
+        {
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+
+                string propertyOrFieldName = reader.LocalName;
+                (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);
+                FieldInfo? field = Array.Find(fields, e => e.Name == propertyOrFieldName); 
+                PropertyInfo? property = Array.Find(properties, e => e.Name == propertyOrFieldName);
+                if (field != null)
+                    ReadField(reader,field);
+
+                else if (property != null)
+                    ReadProperty(reader,property);
+
+                else
+                {
+                    reader.Read();
+                    Console.WriteLine($"Warning, element is not f or p it is {reader.Name}");
+                }
+            }
+            reader.ReadEndElement();
+
+        }
+
+        public void ReadXML(string filePath)
         {
             using (XmlReader reader = XmlReader.Create(filePath))
             {
                 reader.ReadStartElement();
-                // ovo odvojit u novu fju
-                while (reader.NodeType != XmlNodeType.EndElement)
-                {
-                    if (reader.NodeType == XmlNodeType.Element)
-                    {
-                        string propertyOrFieldName = reader.LocalName;
-                        MemberInfo[] members = ElementType.GetMember(propertyOrFieldName); // ovo drugacije
-                        if (members.Length == 0)
-                        {
-                            reader.Skip();
-                            continue;
-                        }
-                        
-
-                    }
-                    reader.Read();
-                }
+                ReadFieldsAndProperties(reader);
             }
             // XmlTextReader reader_for_console = new XmlTextReader(filePath);
             // XmlDocument doc = new XmlDocument();
             // doc.Load(reader_for_console);
             // doc.Save(Console.Out);
+        }
+
+        public void PrintFieldsAndPropertiesAndValues()
+        {
+            (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);
+            foreach (FieldInfo field in fields)
+            {
+                object value = field.GetValue(this)!;
+                if(IsSimple(field.FieldType))
+                    Console.WriteLine($"{field.Name}: {field.GetValue(this)}");
+                else
+                {
+                    Console.WriteLine(field.Name + " ");
+                    foreach (object elem in (IEnumerable)value)
+                        Console.Write(elem.ToString() + " ");
+                }
+            }
+
+            foreach (PropertyInfo property in properties)
+                Console.WriteLine($"{property.Name}: {property.GetValue(this)}");
         }
     }
 }
