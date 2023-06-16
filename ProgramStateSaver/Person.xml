@@ -17,7 +17,25 @@
     <List>
       <Int32>4</Int32>
       <Int32>5</Int32>
-      <Int32>9</Int32>
+      <Int32>6</Int32>
     </List>
   </matrix>
+  <genericStack>
+    <Int32>2</Int32>
+    <Int32>1</Int32>
+  </genericStack>
+  <genericQueue>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+  </genericQueue>
+  <hashSet>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+    <Int32>7</Int32>
+  </hashSet>
+  <sortedSet>
+    <Int32>1</Int32>
+    <Int32>5</Int32>
+    <Int32>3</Int32>
+  </sortedSet>
 </Person>

@@ -29,6 +29,18 @@ namespace ProgramStateSaver
         [Save]
         public List<List<int>> matrix;
 
+        [Save]
+        public Stack<int> genericStack;
+
+        [Save]
+        public Queue<int> genericQueue;
+
+        [Save]
+        public HashSet<int> hashSet;
+
+        [Save]
+        public SortedSet<int> sortedSet;
+
         /*
         [Save]
         public SortedList<int,string> genericSortedList;
@@ -49,17 +61,8 @@ namespace ProgramStateSaver
         [Save]
         public Dictionary<int, int> dictionary;
 
-        [Save]
-        public HashSet<int> hashSet { get; set; }
 
-        [Save]
-        public SortedSet<int> sortedSet;
 
-        [Save]
-        public Stack<int> genericStack;
-
-        [Save]
-        public Queue<int> genericQueue;
 
         [Save]
         public Stack nonGenericStack;
@@ -105,6 +108,14 @@ namespace ProgramStateSaver
             //Age = age;
             this.lista = new List<int> { 1, 2, 3 };
             this.matrix = new List<List<int>> { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
+            genericStack = new Stack<int>();
+            genericStack.Push(1);
+            genericStack.Push(2);
+            genericQueue = new Queue<int>();
+            genericQueue.Enqueue(1);
+            genericQueue.Enqueue(2);
+            hashSet = new HashSet<int>() { 1, 2, 3 };
+            sortedSet = new SortedSet<int>() { 3, 1, 2 };
             /*
             this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
@@ -112,14 +123,6 @@ namespace ProgramStateSaver
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
             this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
             dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2, 3 } };
-            hashSet = new HashSet<int>() { 1, 2, 3 };
-            sortedSet = new SortedSet<int>() { 3, 1, 2 };
-            genericStack = new Stack<int>();
-            genericStack.Push(1);
-            genericStack.Push(2);
-            genericQueue = new Queue<int>();
-            genericQueue.Enqueue(1);
-            genericQueue.Enqueue(2);
             nonGenericStack = new Stack();
             nonGenericStack.Push(1);
             nonGenericStack.Push("adfscv");

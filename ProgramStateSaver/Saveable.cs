@@ -210,10 +210,99 @@ namespace ProgramStateSaver
             }
         }
 
-        private IList ReadList(XmlReader reader, Type listType)
+
+        private object ReadSortedSet(XmlReader reader, Type genericType)
         {
             reader.ReadStartElement();
-            Type genericListType = typeof(List<>).MakeGenericType(listType);
+            Type genericSetType = typeof(SortedSet<>).MakeGenericType(genericType);
+            var set = Activator.CreateInstance(genericSetType)!;
+
+            MethodInfo addMethod = genericSetType.GetMethod("Add")!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                addMethod.Invoke(set, new object[] { ReadValue(reader, genericType) });
+            }
+            reader.ReadEndElement();
+            return set;
+        }
+
+        private object ReadHashSet(XmlReader reader, Type genericType)
+        {
+            reader.ReadStartElement();
+            Type genericSetType = typeof(HashSet<>).MakeGenericType(genericType);
+            var set= Activator.CreateInstance(genericSetType)!;
+
+            MethodInfo addMethod = genericSetType.GetMethod("Add")!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                addMethod.Invoke(set, new object[] { ReadValue(reader, genericType) });
+            }
+            reader.ReadEndElement();
+            return set;
+        }
+
+        private object ReadGenericQueue(XmlReader reader, Type genericType)
+        {
+            reader.ReadStartElement();
+            Type genericQueueType = typeof(Queue<>).MakeGenericType(genericType);
+            var queue = Activator.CreateInstance(genericQueueType);
+
+            MethodInfo pushMethod = genericQueueType.GetMethod("Enqueue")!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                pushMethod.Invoke(queue, new object[] { ReadValue(reader, genericType) });
+            }
+            reader.ReadEndElement();
+            return queue!;
+        }
+
+        private object ReadGenericStack(XmlReader reader, Type genericType)
+        {
+            reader.ReadStartElement();
+            Type genericStackType = typeof(Stack<>).MakeGenericType(genericType);
+            var stack= Activator.CreateInstance(genericStackType);
+
+            MethodInfo pushMethod = genericStackType.GetMethod("Push")!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                pushMethod.Invoke(stack, new object[] { ReadValue(reader, genericType) });
+            }
+            reader.ReadEndElement();
+            return stack!;
+        }
+
+        private IList ReadList(XmlReader reader, Type genericType)
+        {
+            reader.ReadStartElement();
+            Type genericListType = typeof(List<>).MakeGenericType(genericType);
             IList list = (IList)Activator.CreateInstance(genericListType)!;
             while (reader.NodeType != XmlNodeType.EndElement)
             {
@@ -223,7 +312,7 @@ namespace ProgramStateSaver
                     reader.Read();
                     continue;
                 }
-                list.Add(ReadValue(reader, listType));
+                list.Add(ReadValue(reader, genericType));
             }
             reader.ReadEndElement();
             return list;
@@ -234,6 +323,19 @@ namespace ProgramStateSaver
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
             if (genericTypeDefinition == typeof(List<>))
                 return ReadList(reader, type.GetGenericArguments()[0]);
+
+            if (genericTypeDefinition == typeof(Stack<>))
+                return ReadGenericStack(reader, type.GetGenericArguments()[0]);
+
+            if (genericTypeDefinition == typeof(Queue<>))
+                return ReadGenericQueue(reader, type.GetGenericArguments()[0]);
+
+            if (genericTypeDefinition == typeof(HashSet<>))
+                return ReadHashSet(reader, type.GetGenericArguments()[0]);
+
+            if (genericTypeDefinition == typeof(SortedSet<>))
+                return ReadSortedSet(reader, type.GetGenericArguments()[0]);
+
             return "";
         }
 
@@ -302,12 +404,9 @@ namespace ProgramStateSaver
                 reader.ReadStartElement();
                 ReadFieldsAndProperties(reader);
             }
-            // XmlTextReader reader_for_console = new XmlTextReader(filePath);
-            // XmlDocument doc = new XmlDocument();
-            // doc.Load(reader_for_console);
-            // doc.Save(Console.Out);
         }
 
+        // function for testing reading xml
         public void PrintFieldsAndPropertiesAndValues()
         {
             (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);
@@ -321,6 +420,7 @@ namespace ProgramStateSaver
                     Console.WriteLine(field.Name + " ");
                     foreach (object elem in (IEnumerable)value)
                         Console.Write(elem.ToString() + " ");
+                    Console.WriteLine("");
                 }
             }
 

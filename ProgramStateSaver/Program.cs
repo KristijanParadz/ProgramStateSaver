@@ -8,9 +8,11 @@ string filePath = Path.Combine(projectRoot, "person.xml");
 
 //person.WriteXML(filePath);
 person.ReadXML(filePath);
+
 Console.WriteLine("");
 person.PrintFieldsAndPropertiesAndValues();
 Console.WriteLine("");
-foreach (var list in person.matrix )
-    foreach (var item in list)
-        Console.WriteLine(item.ToString());
+
+//foreach (var list in person.matrix )
+  //  foreach (var item in list)
+    //    Console.WriteLine(item.ToString());
