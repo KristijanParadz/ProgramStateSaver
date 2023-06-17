@@ -59,6 +59,43 @@ namespace ProgramStateSaver
             return false;
         }
 
+        private bool IsTuple(Type type)
+        {
+            Type[] tupleTypes = {typeof(Tuple<>), typeof(Tuple<,>), typeof(Tuple<,,>), typeof(Tuple<,,,>), typeof(Tuple<,,,,>), typeof(Tuple<,,,,,>),
+            typeof(Tuple<,,,,,,>), typeof(Tuple<,,,,,,,>)};
+            return tupleTypes.Any(tupleType => tupleType == type);
+        }
+
+        private object ArrayListToTuple(ArrayList list, Type tupleType)
+        {
+            switch (list.Count)
+            {
+                case 1:
+                    return Activator.CreateInstance(tupleType, list[0])!;
+
+                case 2:
+                    return Activator.CreateInstance(tupleType, list[0], list[1])!;
+
+                case 3:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2])!;
+
+                case 4:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2], list[3])!;
+
+                case 5:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2], list[3], list[4])!;
+
+                case 6:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2], list[3], list[4], list[5])!;
+
+                case 7:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2], list[3], list[4], list[5], list[6])!;
+
+                default:
+                    return Activator.CreateInstance(tupleType, list[0], list[1], list[2], list[3], list[4], list[5], list[6], list[7])!;
+            }
+        }
+
         private void WriteSimple(object value, XmlWriter writer, string name)
         {
             writer.WriteElementString(name, value.ToString());
@@ -211,6 +248,30 @@ namespace ProgramStateSaver
         }
 
 
+
+        private object ReadTuple(XmlReader reader, Type[] genericArguments, Type genericTypeDefinition)
+        {
+            reader.ReadStartElement();
+            ArrayList arrayList = new ArrayList();
+            int i = 0;
+
+            Type tupleType = genericTypeDefinition.MakeGenericType(genericArguments);
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                arrayList.Add(ReadValue(reader, genericArguments[i]));
+                i++;
+            }
+            reader.ReadEndElement();
+            return ArrayListToTuple(arrayList, tupleType);
+        }
+
         private object ReadSortedSet(XmlReader reader, Type genericType)
         {
             reader.ReadStartElement();
@@ -336,6 +397,9 @@ namespace ProgramStateSaver
             if (genericTypeDefinition == typeof(SortedSet<>))
                 return ReadSortedSet(reader, type.GetGenericArguments()[0]);
 
+            if (IsTuple(genericTypeDefinition))
+                return ReadTuple(reader, type.GetGenericArguments(), genericTypeDefinition);
+
             return "";
         }
 
@@ -415,6 +479,14 @@ namespace ProgramStateSaver
                 object value = field.GetValue(this)!;
                 if(IsSimple(field.FieldType))
                     Console.WriteLine($"{field.Name}: {field.GetValue(this)}");
+                else if(value is ITuple)
+                {
+                    Console.WriteLine(field.Name + " ");
+                    var tuple = (ITuple)value;
+                    for (int i = 0; i < tuple.Length; i++)
+                        Console.Write(tuple[i]!.ToString() + " ");
+                    Console.WriteLine("");
+                }
                 else
                 {
                     Console.WriteLine(field.Name + " ");

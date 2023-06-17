@@ -41,6 +41,9 @@ namespace ProgramStateSaver
         [Save]
         public SortedSet<int> sortedSet;
 
+        [Save]
+        public Tuple<int, string> genericTuple;
+
         /*
         [Save]
         public SortedList<int,string> genericSortedList;
@@ -66,9 +69,7 @@ namespace ProgramStateSaver
 
         [Save]
         public Stack nonGenericStack;
-
-        [Save]
-        public Tuple<int, string> genericTuple;*/
+        */
 
         public Person() {
             FirstName = "Default first name";
@@ -116,6 +117,7 @@ namespace ProgramStateSaver
             genericQueue.Enqueue(2);
             hashSet = new HashSet<int>() { 1, 2, 3 };
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
+            genericTuple = Tuple.Create(1, "dsvgc");
             /*
             this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
@@ -130,7 +132,7 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
-            genericTuple = Tuple.Create(1, "dsvgc");*/
+            */
         }
     }
 }
