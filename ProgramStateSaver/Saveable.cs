@@ -272,10 +272,10 @@ namespace ProgramStateSaver
             return ArrayListToTuple(arrayList, tupleType);
         }
 
-        private object ReadSortedSet(XmlReader reader, Type genericType)
+        private object ReadSet(XmlReader reader, Type genericType, Type genericTypeDefinition)
         {
             reader.ReadStartElement();
-            Type genericSetType = typeof(SortedSet<>).MakeGenericType(genericType);
+            Type genericSetType = genericTypeDefinition.MakeGenericType(genericType);
             var set = Activator.CreateInstance(genericSetType)!;
 
             MethodInfo addMethod = genericSetType.GetMethod("Add")!;
@@ -294,27 +294,6 @@ namespace ProgramStateSaver
             return set;
         }
 
-        private object ReadHashSet(XmlReader reader, Type genericType)
-        {
-            reader.ReadStartElement();
-            Type genericSetType = typeof(HashSet<>).MakeGenericType(genericType);
-            var set= Activator.CreateInstance(genericSetType)!;
-
-            MethodInfo addMethod = genericSetType.GetMethod("Add")!;
-
-            while (reader.NodeType != XmlNodeType.EndElement)
-            {
-                if (reader.NodeType != XmlNodeType.Element)
-                {
-                    Console.WriteLine($"Warning it is a {reader.NodeType}");
-                    reader.Read();
-                    continue;
-                }
-                addMethod.Invoke(set, new object[] { ReadValue(reader, genericType) });
-            }
-            reader.ReadEndElement();
-            return set;
-        }
 
         private object ReadGenericQueue(XmlReader reader, Type genericType)
         {
@@ -438,11 +417,8 @@ namespace ProgramStateSaver
             if (genericTypeDefinition == typeof(Queue<>))
                 return ReadGenericQueue(reader, type.GetGenericArguments()[0]);
 
-            if (genericTypeDefinition == typeof(HashSet<>))
-                return ReadHashSet(reader, type.GetGenericArguments()[0]);
-
-            if (genericTypeDefinition == typeof(SortedSet<>))
-                return ReadSortedSet(reader, type.GetGenericArguments()[0]);
+            if (genericTypeDefinition == typeof(HashSet<>) || genericTypeDefinition == typeof(SortedSet<>))
+                return ReadSet(reader, type.GetGenericArguments()[0], genericTypeDefinition);
 
             if (IsTuple(genericTypeDefinition))
                 return ReadTuple(reader, type.GetGenericArguments(), genericTypeDefinition);
@@ -478,7 +454,8 @@ namespace ProgramStateSaver
         private void ReadProperty(XmlReader reader, PropertyInfo property)
         {
             Console.WriteLine(property.Name);
-            reader.Read();
+            Type propertyType = property.PropertyType;
+            property.SetValue(this, ReadValue(reader, propertyType));
         }
 
         private void ReadFieldsAndProperties(XmlReader reader)
