@@ -47,9 +47,10 @@ namespace ProgramStateSaver
         [Save]
         public Dictionary<int, List<int>> dictionary;
 
-        /*
         [Save]
         public SortedList<int,string> genericSortedList;
+
+        /*
 
         [Save]
         public SortedList nonGenericSortedList;
@@ -119,8 +120,8 @@ namespace ProgramStateSaver
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
             genericTuple = Tuple.Create(1, "dsvgc");
             dictionary = new Dictionary<int, List<int>>() { { 1, new List<int> { 1, 2 } }, { 2, new List<int> { 4, 3, 5 } } };
-            /*
             this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
+            /*
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};

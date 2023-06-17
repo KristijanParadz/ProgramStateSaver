@@ -405,10 +405,10 @@ namespace ProgramStateSaver
             return (key!, value!);
         }
 
-        private object ReadDictionary(XmlReader reader, Type[] genericArguments)
+        private object ReadDictionary(XmlReader reader, Type[] genericArguments, Type genericTypeDefinition)
         {
             reader.ReadStartElement();
-            Type genericDictType = typeof(Dictionary<,>).MakeGenericType(genericArguments);
+            Type genericDictType = genericTypeDefinition.MakeGenericType(genericArguments);
             IDictionary dictionary= (IDictionary)Activator.CreateInstance(genericDictType)!;
 
             while (reader.NodeType != XmlNodeType.EndElement)
@@ -447,8 +447,8 @@ namespace ProgramStateSaver
             if (IsTuple(genericTypeDefinition))
                 return ReadTuple(reader, type.GetGenericArguments(), genericTypeDefinition);
 
-            if (genericTypeDefinition == typeof(Dictionary<,>))
-                return ReadDictionary(reader, type.GetGenericArguments());
+            if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SortedList<,>))
+                return ReadDictionary(reader, type.GetGenericArguments(), genericTypeDefinition);
 
 
             return "";

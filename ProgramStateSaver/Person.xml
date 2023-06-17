@@ -59,4 +59,14 @@
       </List>
     </KeyValuePair>
   </dictionary>
+  <genericSortedList>
+    <KeyValuePair>
+      <Int32>1</Int32>
+      <String>dgbv</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Int32>2</Int32>
+      <String>adf</String>
+    </KeyValuePair>
+  </genericSortedList>
 </Person>
