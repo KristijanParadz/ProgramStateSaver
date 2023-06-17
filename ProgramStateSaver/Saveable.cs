@@ -372,11 +372,13 @@ namespace ProgramStateSaver
                     reader.Read();
                     continue;
                 }
+                // reader is on key element
                 if (i == 0)
                 {
                     key = ReadValue(reader, genericArguments[0]);
                     i++;
                 }
+                // reader is on value element
                 else
                     value = ReadValue(reader, genericArguments[1]);
             }
@@ -384,7 +386,7 @@ namespace ProgramStateSaver
             return (key!, value!);
         }
 
-        private object ReadDictionary(XmlReader reader, Type[] genericArguments, Type genericTypeDefinition)
+        private IDictionary ReadDictionary(XmlReader reader, Type[] genericArguments, Type genericTypeDefinition)
         {
             reader.ReadStartElement();
             Type genericDictType = genericTypeDefinition.MakeGenericType(genericArguments);
@@ -426,16 +428,14 @@ namespace ProgramStateSaver
             if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SortedList<,>))
                 return ReadDictionary(reader, type.GetGenericArguments(), genericTypeDefinition);
 
-
-            return "";
+            throw new Exception("Unsupported data type");
         }
 
         private object ReadValue(XmlReader reader,Type type)
         {
             if (IsSimple(type))
             {
-                string value = reader.ReadElementContentAsString();
-                return Convert.ChangeType(value, type);
+                return reader.ReadElementContentAs(type, null!);
             }
 
             // type is not simple
