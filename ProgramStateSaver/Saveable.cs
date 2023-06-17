@@ -379,6 +379,53 @@ namespace ProgramStateSaver
             return list;
         }
 
+        private (object, object) ReadEntry(XmlReader reader, Type[] genericArguments)
+        {
+            reader.ReadStartElement();
+            int i = 0;
+            object? key = null;
+            object? value = null;
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                if (i == 0)
+                {
+                    key = ReadValue(reader, genericArguments[0]);
+                    i++;
+                }
+                else
+                    value = ReadValue(reader, genericArguments[1]);
+            }
+            reader.ReadEndElement();
+            return (key!, value!);
+        }
+
+        private object ReadDictionary(XmlReader reader, Type[] genericArguments)
+        {
+            reader.ReadStartElement();
+            Type genericDictType = typeof(Dictionary<,>).MakeGenericType(genericArguments);
+            IDictionary dictionary= (IDictionary)Activator.CreateInstance(genericDictType)!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                (object key, object value) = ReadEntry(reader, genericArguments);
+                dictionary.Add(key,value);
+            }
+            reader.ReadEndElement();
+            return dictionary;
+        }
+
         private object ReadGeneric(XmlReader reader, Type type)
         {
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -399,6 +446,10 @@ namespace ProgramStateSaver
 
             if (IsTuple(genericTypeDefinition))
                 return ReadTuple(reader, type.GetGenericArguments(), genericTypeDefinition);
+
+            if (genericTypeDefinition == typeof(Dictionary<,>))
+                return ReadDictionary(reader, type.GetGenericArguments());
+
 
             return "";
         }

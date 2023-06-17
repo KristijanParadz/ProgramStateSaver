@@ -44,6 +44,9 @@ namespace ProgramStateSaver
         [Save]
         public Tuple<int, string> genericTuple;
 
+        [Save]
+        public Dictionary<int, List<int>> dictionary;
+
         /*
         [Save]
         public SortedList<int,string> genericSortedList;
@@ -60,9 +63,6 @@ namespace ProgramStateSaver
 
         [Save]
         public Hashtable hashTable;
-
-        [Save]
-        public Dictionary<int, int> dictionary;
 
 
 
@@ -118,13 +118,13 @@ namespace ProgramStateSaver
             hashSet = new HashSet<int>() { 1, 2, 3 };
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
             genericTuple = Tuple.Create(1, "dsvgc");
+            dictionary = new Dictionary<int, List<int>>() { { 1, new List<int> { 1, 2 } }, { 2, new List<int> { 4, 3, 5 } } };
             /*
             this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
             this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
-            dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2, 3 } };
             nonGenericStack = new Stack();
             nonGenericStack.Push(1);
             nonGenericStack.Push("adfscv");

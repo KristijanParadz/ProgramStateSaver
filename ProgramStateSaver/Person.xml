@@ -40,6 +40,23 @@
   </sortedSet>
   <genericTuple>
     <Int32>1</Int32>
-    <String>test</String>
+    <String>dsvgc</String>
   </genericTuple>
+  <dictionary>
+    <KeyValuePair>
+      <Int32>1</Int32>
+      <List>
+        <Int32>1</Int32>
+        <Int32>2</Int32>
+      </List>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Int32>2</Int32>
+      <List>
+        <Int32>4</Int32>
+        <Int32>3</Int32>
+        <Int32>5</Int32>
+      </List>
+    </KeyValuePair>
+  </dictionary>
 </Person>
