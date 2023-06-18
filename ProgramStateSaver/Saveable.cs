@@ -105,6 +105,7 @@ namespace ProgramStateSaver
         {
             if (array.Length == 0) return;
             Type arrayType = type.GetElementType()!;
+            writer.WriteAttributeString("type", arrayType.FullName);
             foreach (var element in array)
                 WriteValue(element, writer, arrayType);
         }
@@ -407,6 +408,32 @@ namespace ProgramStateSaver
             return dictionary;
         }
 
+        private object ReadArray(XmlReader reader)
+        {
+            reader.MoveToNextAttribute();
+            // read type from attribute
+            string attributeValue = reader.Value;
+            Type arrayType = Type.GetType(attributeValue)!;
+            reader.ReadStartElement();
+            Type genericListType = typeof(List<>).MakeGenericType(arrayType);
+            IList list = (IList)Activator.CreateInstance(genericListType)!;
+
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+            if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                list.Add(ReadValue(reader, arrayType));
+            }
+            reader.ReadEndElement();
+            Array array = Array.CreateInstance(arrayType, list.Count);
+            list.CopyTo(array, 0);
+            return array;
+        }
+
         private object ReadGeneric(XmlReader reader, Type type)
         {
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -431,6 +458,14 @@ namespace ProgramStateSaver
             throw new Exception("Unsupported data type");
         }
 
+        private object ReadNonGeneric(XmlReader reader, Type type)
+        {
+            if (type.IsArray)
+                return ReadArray(reader);
+
+            throw new Exception("Unsupported data type");
+        }
+
         private object ReadValue(XmlReader reader,Type type)
         {
             if (IsSimple(type))
@@ -439,10 +474,14 @@ namespace ProgramStateSaver
             }
 
             // type is not simple
-            if (type.IsGenericType)
+            bool isGeneric = type.IsGenericType;
+            if (isGeneric)
                 return ReadGeneric(reader, type);
 
-            return "";
+            if (!isGeneric)
+                return ReadNonGeneric(reader, type);
+
+            throw new Exception("Unsupported data type");
         }
 
         private void ReadField(XmlReader reader, FieldInfo field) { 

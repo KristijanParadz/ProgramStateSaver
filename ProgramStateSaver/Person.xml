@@ -69,4 +69,9 @@
       <String>adf</String>
     </KeyValuePair>
   </genericSortedList>
+  <array type="System.Int32">
+    <Int32>1</Int32>
+    <Int32>7</Int32>
+    <Int32>3</Int32>
+  </array>
 </Person>
