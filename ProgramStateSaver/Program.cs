@@ -13,6 +13,10 @@ Console.WriteLine("");
 person.PrintFieldsAndPropertiesAndValues();
 Console.WriteLine("");
 
+//var hashset = (HashSet<int>)person.arrayLista[4]!;
+//foreach (int i in hashset)
+//    Console.WriteLine(i);
+
 //foreach (var list in person.matrix )
   //  foreach (var item in list)
     //    Console.WriteLine(item.ToString());

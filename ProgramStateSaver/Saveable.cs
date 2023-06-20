@@ -96,11 +96,6 @@ namespace ProgramStateSaver
             }
         }
 
-        private void WriteSimple(object value, XmlWriter writer, string name)
-        {
-            writer.WriteElementString(name, value.ToString());
-        }
-
         private void WriteArray(Array array, XmlWriter writer, Type type)
         {
             if (array.Length == 0) return;
@@ -113,7 +108,7 @@ namespace ProgramStateSaver
         private void WriteNonGenericEnumerable(IEnumerable enumerable, XmlWriter writer)
         {
             foreach (var element in enumerable)
-                WriteValue(element,writer,element.GetType());
+                WriteValue(element,writer,element.GetType(), "default", true);
         }
 
         private void WriteGenericEnumerable(IEnumerable enumerable, XmlWriter writer, Type type)
@@ -184,25 +179,26 @@ namespace ProgramStateSaver
                 WriteTuple((ITuple)value, writer);
         }
 
-        private void WriteValue(object value, XmlWriter writer, Type type, string name = "default")
+        private void WriteValue(object value, XmlWriter writer, Type type, string name = "default", bool hasAttribute = false )
         {
             // set proper name
             string realName = name;
             if (name == "default")
                 realName = type.IsGenericType ? type.Name.Split('`')[0] : type.Name;
 
-            // type is simple
-            if (IsSimple(type))
-            {
-                WriteSimple(value, writer, realName);
-                return;
-            }
-
-            // type is complex
             writer.WriteStartElement(realName);
 
-            if (type.IsGenericType)
+            if(hasAttribute)
+                writer.WriteAttributeString("type", type.FullName);
+
+            // type is simple
+            if (IsSimple(type))
+                writer.WriteString(type == typeof(bool) ? value.ToString()!.ToLower() : value.ToString());
+
+            // type is complex generic
+            else if (type.IsGenericType)
                 WriteGeneric(value, writer, type);
+            // type is complex non-generic
             else
                 WriteNonGeneric(value, writer, type);
 
@@ -434,6 +430,29 @@ namespace ProgramStateSaver
             return array;
         }
 
+        private ArrayList ReadArrayList(XmlReader reader, Type type)
+        {
+            ArrayList arrayList = new ArrayList();
+            reader.ReadStartElement();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                // read type from attribute
+                Console.WriteLine(reader.MoveToNextAttribute());
+                string attributeValue = reader.Value;
+                Type elementType = Type.GetType(attributeValue)!;
+                reader.MoveToElement();
+                arrayList.Add(ReadValue(reader, elementType));
+            }
+            reader.ReadEndElement();
+            return arrayList;
+        }
+
         private object ReadGeneric(XmlReader reader, Type type)
         {
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -462,6 +481,9 @@ namespace ProgramStateSaver
         {
             if (type.IsArray)
                 return ReadArray(reader);
+
+            if (type == typeof(ArrayList))
+                return ReadArrayList(reader, type);
 
             throw new Exception("Unsupported data type");
         }

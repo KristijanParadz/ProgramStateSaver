@@ -69,9 +69,24 @@
       <String>adf</String>
     </KeyValuePair>
   </genericSortedList>
+  <arrayLista>
+    <String type="System.String">fbvc</String>
+    <Int32 type="System.Int32">1</Int32>
+    <Boolean type="System.Boolean">true</Boolean>
+    <ArrayList type="System.Collections.ArrayList">
+      <Int32 type="System.Int32">1</Int32>
+      <Int32 type="System.Int32">5</Int32>
+      <String type="System.String">sfdgv</String>
+    </ArrayList>
+    <HashSet type="System.Collections.Generic.HashSet`1[[System.Int32, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]">
+      <Int32>1</Int32>
+      <Int32>2</Int32>
+	  <Int32>76</Int32>
+    </HashSet>
+  </arrayLista>
   <array type="System.Int32">
     <Int32>1</Int32>
-    <Int32>7</Int32>
+    <Int32>2</Int32>
     <Int32>3</Int32>
   </array>
 </Person>
