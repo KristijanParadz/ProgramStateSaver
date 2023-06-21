@@ -18,6 +18,9 @@ namespace ProgramStateSaver
 
         private static Dictionary<Type,(FieldInfo[], PropertyInfo[])> FieldsAndProperties;
 
+        // Keywords from attributes are keys and their types are values
+        private static Dictionary<string, Type> CachedTypes;
+
         private static Type SaveAttributeType { get; set; }
 
 
@@ -25,6 +28,14 @@ namespace ProgramStateSaver
         {
             FieldsAndProperties = new Dictionary<Type, (FieldInfo[], PropertyInfo[])>();
             SaveAttributeType = typeof(SaveAttribute);
+            CachedTypes = new Dictionary<string, Type>
+            {
+                {"System.Collections.Queue", typeof(Queue) },
+                {"System.Collections.Stack", typeof(Stack) },
+                {"System.Collections.ArrayList", typeof(ArrayList) },
+                {"System.Collections.SortedList", typeof(SortedList) },
+                {"System.Collections.Hashtable", typeof(Hashtable) }
+            };
         }
         protected Saveable()
         {
@@ -44,6 +55,7 @@ namespace ProgramStateSaver
             return (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime)) ? true : false;
         }
 
+
         private (FieldInfo[], PropertyInfo[]) GetFieldsAndProperties(Type type)
         {
             return (FieldsAndProperties[type].Item1, FieldsAndProperties[type].Item2);
@@ -58,6 +70,12 @@ namespace ProgramStateSaver
             }
             return false;
         }
+
+        private Type GetTypeFromKeyword(string keyword)
+        {
+            return CachedTypes.ContainsKey(keyword) ? CachedTypes[keyword] : Type.GetType(keyword)!;
+        }
+
 
         private bool IsTuple(Type type)
         {
@@ -409,7 +427,7 @@ namespace ProgramStateSaver
             reader.MoveToNextAttribute();
             // read type from attribute
             string attributeValue = reader.Value;
-            Type arrayType = Type.GetType(attributeValue)!;
+            Type arrayType = GetTypeFromKeyword(attributeValue);
             reader.ReadStartElement();
             Type genericListType = typeof(List<>).MakeGenericType(arrayType);
             IList list = (IList)Activator.CreateInstance(genericListType)!;
@@ -430,7 +448,7 @@ namespace ProgramStateSaver
             return array;
         }
 
-        private ArrayList ReadArrayList(XmlReader reader, Type type)
+        private ArrayList ReadArrayList(XmlReader reader)
         {
             ArrayList arrayList = new ArrayList();
             reader.ReadStartElement();
@@ -443,14 +461,62 @@ namespace ProgramStateSaver
                     continue;
                 }
                 // read type from attribute
-                Console.WriteLine(reader.MoveToNextAttribute());
+                reader.MoveToNextAttribute();
                 string attributeValue = reader.Value;
-                Type elementType = Type.GetType(attributeValue)!;
+                Type elementType = GetTypeFromKeyword(attributeValue);
                 reader.MoveToElement();
                 arrayList.Add(ReadValue(reader, elementType));
             }
             reader.ReadEndElement();
             return arrayList;
+        }
+
+        private Stack ReadNonGenericStack(XmlReader reader)
+        {
+            Stack stack= new Stack();
+            reader.ReadStartElement();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                // read type from attribute
+                Console.WriteLine(reader.Name);
+                reader.MoveToNextAttribute();
+                string attributeValue = reader.Value;
+                Console.WriteLine(attributeValue);
+                Type elementType = GetTypeFromKeyword(attributeValue)!;
+                reader.MoveToElement();
+                stack.Push(ReadValue(reader, elementType));
+            }
+            reader.ReadEndElement();
+            return stack;
+        }
+
+        private Queue ReadNonGenericQueue(XmlReader reader)
+        {
+            Queue queue= new Queue();
+            reader.ReadStartElement();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                // read type from attribute
+                reader.MoveToNextAttribute();
+                string attributeValue = reader.Value;
+                Type elementType = GetTypeFromKeyword(attributeValue);
+                reader.MoveToElement();
+                queue.Enqueue(ReadValue(reader, elementType));
+            }
+            reader.ReadEndElement();
+            return queue;
         }
 
         private object ReadGeneric(XmlReader reader, Type type)
@@ -483,7 +549,13 @@ namespace ProgramStateSaver
                 return ReadArray(reader);
 
             if (type == typeof(ArrayList))
-                return ReadArrayList(reader, type);
+                return ReadArrayList(reader);
+
+            if (type == typeof(Stack))
+                return ReadNonGenericStack(reader);
+
+            if (type == typeof(Queue))
+                return ReadNonGenericQueue(reader);
 
             throw new Exception("Unsupported data type");
         }
@@ -507,7 +579,7 @@ namespace ProgramStateSaver
         }
 
         private void ReadField(XmlReader reader, FieldInfo field) { 
-            Console.WriteLine(field.Name);
+            //Console.WriteLine(field.Name);
             Type fieldType = field.FieldType;
             field.SetValue(this, ReadValue(reader,fieldType));
         }
@@ -576,6 +648,15 @@ namespace ProgramStateSaver
                         Console.Write(tuple[i]!.ToString() + " ");
                     Console.WriteLine("");
                 }
+
+                else if (field.FieldType == typeof(Stack) || field.FieldType == typeof(Queue))
+                {
+                    Console.WriteLine(field.Name + " ");
+                    foreach (var elem in (Stack)value)
+                        Console.Write(elem.ToString() + " ");
+                    Console.WriteLine("");
+                }
+
                 else
                 {
                     Console.WriteLine(field.Name + " ");

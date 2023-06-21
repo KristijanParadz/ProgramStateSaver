@@ -20,8 +20,8 @@ namespace ProgramStateSaver
         public int Number;
 
         
-        // [Save]
-        // public int Age { get; set; }
+        [Save]
+        public int Age { get; set; }
 
         [Save]
         public List<int> lista;
@@ -56,22 +56,18 @@ namespace ProgramStateSaver
         [Save]
         public int[] array = { 1, 2, 3 };
 
-
-        /*
-        [Save]
-        public SortedList nonGenericSortedList;
-
-
-
-        [Save]
-        public Hashtable hashTable;
-
-
-
-
         [Save]
         public Stack nonGenericStack;
-        */
+
+        //[Save]
+        //public SortedList nonGenericSortedList;
+
+
+
+        //[Save]
+        //public Hashtable hashTable;
+
+
 
         public Person() {
             FirstName = "Default first name";
@@ -123,10 +119,6 @@ namespace ProgramStateSaver
             dictionary = new Dictionary<int, List<int>>() { { 1, new List<int> { 1, 2 } }, { 2, new List<int> { 4, 3, 5 } } };
             this.genericSortedList = new SortedList<int, string> { { 2, "adf" }, { 1, "dgbv" } };
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>() { 1, 2 } };
-            /*
-            this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
-            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
-            this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
             nonGenericStack = new Stack();
             nonGenericStack.Push(1);
             nonGenericStack.Push("adfscv");
@@ -134,6 +126,10 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
+            /*
+            this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
+            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
+            this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
             */
         }
     }
