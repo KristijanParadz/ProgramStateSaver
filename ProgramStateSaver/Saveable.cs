@@ -141,8 +141,8 @@ namespace ProgramStateSaver
             foreach (DictionaryEntry entry in dictionary)
             {
                 writer.WriteStartElement("KeyValuePair");
-                WriteValue(entry.Key, writer, entry.Key.GetType());
-                WriteValue(entry.Value!, writer, entry.Value!.GetType());
+                WriteValue(entry.Key, writer, entry.Key.GetType(), "default", true);
+                WriteValue(entry.Value!, writer, entry.Value!.GetType(), "default", true);
                 writer.WriteEndElement();
             }
         }
@@ -373,7 +373,7 @@ namespace ProgramStateSaver
             return list;
         }
 
-        private (object, object) ReadEntry(XmlReader reader, Type[] genericArguments)
+        private (object, object) ReadGenericEntry(XmlReader reader, Type[] genericArguments)
         {
             reader.ReadStartElement();
             int i = 0;
@@ -401,6 +401,38 @@ namespace ProgramStateSaver
             return (key!, value!);
         }
 
+        private (object, object) ReadNonGenericEntry(XmlReader reader)
+        {
+            reader.ReadStartElement();
+            int i = 0;
+            object? key = null;
+            object? value = null;
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                // reader is on key element
+                reader.MoveToNextAttribute();
+                string attributeValue= reader.Value;
+                Type elementType = GetTypeFromKeyword(attributeValue);
+                reader.MoveToElement();
+                if (i == 0)
+                {
+                    key = ReadValue(reader, elementType);
+                    i++;
+                }
+                // reader is on value element
+                else
+                    value = ReadValue(reader, elementType);
+            }
+            reader.ReadEndElement();
+            return (key!, value!);
+        }
+
         private IDictionary ReadDictionary(XmlReader reader, Type[] genericArguments, Type genericTypeDefinition)
         {
             reader.ReadStartElement();
@@ -415,7 +447,7 @@ namespace ProgramStateSaver
                     reader.Read();
                     continue;
                 }
-                (object key, object value) = ReadEntry(reader, genericArguments);
+                (object key, object value) = ReadGenericEntry(reader, genericArguments);
                 dictionary.Add(key,value);
             }
             reader.ReadEndElement();
@@ -484,10 +516,8 @@ namespace ProgramStateSaver
                     continue;
                 }
                 // read type from attribute
-                Console.WriteLine(reader.Name);
                 reader.MoveToNextAttribute();
                 string attributeValue = reader.Value;
-                Console.WriteLine(attributeValue);
                 Type elementType = GetTypeFromKeyword(attributeValue)!;
                 reader.MoveToElement();
                 stack.Push(ReadValue(reader, elementType));
@@ -517,6 +547,44 @@ namespace ProgramStateSaver
             }
             reader.ReadEndElement();
             return queue;
+        }
+
+        private SortedList ReadNonGenericSortedList(XmlReader reader)
+        {
+            SortedList sortedList= new SortedList();
+            reader.ReadStartElement();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                (object key, object value) = ReadNonGenericEntry(reader);
+                sortedList.Add(key, value);
+            }
+            reader.ReadEndElement();
+            return sortedList;
+        }
+
+        private Hashtable ReadHashtable(XmlReader reader)
+        {
+            Hashtable hashtable = new Hashtable();
+            reader.ReadStartElement();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Console.WriteLine($"Warning it is a {reader.NodeType}");
+                    reader.Read();
+                    continue;
+                }
+                (object key, object value) = ReadNonGenericEntry(reader);
+                hashtable.Add(key, value);
+            }
+            reader.ReadEndElement();
+            return hashtable;
         }
 
         private object ReadGeneric(XmlReader reader, Type type)
@@ -557,6 +625,12 @@ namespace ProgramStateSaver
             if (type == typeof(Queue))
                 return ReadNonGenericQueue(reader);
 
+            if (type == typeof(SortedList))
+                return ReadNonGenericSortedList(reader);
+
+            if (type == typeof(Hashtable))
+                return ReadHashtable(reader);
+
             throw new Exception("Unsupported data type");
         }
 
@@ -579,14 +653,12 @@ namespace ProgramStateSaver
         }
 
         private void ReadField(XmlReader reader, FieldInfo field) { 
-            //Console.WriteLine(field.Name);
             Type fieldType = field.FieldType;
             field.SetValue(this, ReadValue(reader,fieldType));
         }
 
         private void ReadProperty(XmlReader reader, PropertyInfo property)
         {
-            Console.WriteLine(property.Name);
             Type propertyType = property.PropertyType;
             property.SetValue(this, ReadValue(reader, propertyType));
         }
@@ -654,6 +726,16 @@ namespace ProgramStateSaver
                     Console.WriteLine(field.Name + " ");
                     foreach (var elem in (Stack)value)
                         Console.Write(elem.ToString() + " ");
+                    Console.WriteLine("");
+                }
+
+                else if (value is IDictionary)
+                {
+                    Console.WriteLine(field.Name + " ");
+                    foreach (DictionaryEntry elem in (IDictionary)value)
+                    {
+                        Console.WriteLine(elem.Key + " " + elem.Value);
+                    }
                     Console.WriteLine("");
                 }
 

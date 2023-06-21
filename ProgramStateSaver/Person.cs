@@ -59,13 +59,11 @@ namespace ProgramStateSaver
         [Save]
         public Stack nonGenericStack;
 
-        //[Save]
-        //public SortedList nonGenericSortedList;
+        [Save]
+        public SortedList nonGenericSortedList;
 
-
-
-        //[Save]
-        //public Hashtable hashTable;
+        [Save]
+        public Hashtable hashTable;
 
 
 
@@ -73,7 +71,7 @@ namespace ProgramStateSaver
             FirstName = "Default first name";
             LastName = "Default last name";
             Number = 0;
-            /*Age = 0;
+            Age = 0;
             this.lista = new List<int> { 1, 2, 3 };
             this.genericSortedList= new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } };
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
@@ -81,7 +79,7 @@ namespace ProgramStateSaver
             this.arrayLista = new ArrayList { "asfd", 1, true, new ArrayList { 1, 2, "sfdgv" }, new HashSet<int>(){ 1, 2 },
             new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
             this.hashTable = new Hashtable() { { 1,3 }, { 2, "dsvg" }, { "dyfbdyfcb", true  } };
-            dictionary = new Dictionary<int, int>() { { 1, 1 }, { 2,3 } };
+            dictionary = new Dictionary<int, List<int>>() { { 1, new List<int> { 1, 2 } }, { 2, new List<int> { 4, 3, 5 } } };
             hashSet = new HashSet<int>() { 1,2,3};
             sortedSet = new SortedSet<int>() { 3, 1, 2 };
             genericStack = new Stack<int>();
@@ -97,7 +95,7 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
-            genericTuple = Tuple.Create(1, "dsvgc");*/
+            genericTuple = Tuple.Create(1, "dsvgc");
         }
         public Person(string firstName, string lastName, int age)
         {
@@ -126,11 +124,9 @@ namespace ProgramStateSaver
             randomQueue.Enqueue(1);
             randomQueue.Enqueue("bf");
             nonGenericStack.Push(randomQueue);
-            /*
             this.nonGenericSortedList = new SortedList { { 2, "adf" }, { 1, "dgbv" } };
-            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } }};
+            new SortedList<int,string> { {2, "adf" }, { 1, "dgbv" } };
             this.hashTable = new Hashtable() { { 1, 3 }, { 2, "dsvg" }, { "dyfbdyfcb", true } };
-            */
         }
     }
 }

@@ -96,5 +96,29 @@
     <String type="System.String">adfscv</String>
     <Int32 type="System.Int32">1</Int32>
   </nonGenericStack>
+  <nonGenericSortedList>
+    <KeyValuePair>
+      <Int32 type="System.Int32">1</Int32>
+      <String type="System.String">dgbv</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Int32 type="System.Int32">2</Int32>
+      <String type="System.String">adf</String>
+    </KeyValuePair>
+  </nonGenericSortedList>
+  <hashTable>
+    <KeyValuePair>
+      <String type="System.String">dyfbdyfcb</String>
+      <Boolean type="System.Boolean">true</Boolean>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Int32 type="System.Int32">2</Int32>
+      <String type="System.String">dsvg</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <Int32 type="System.Int32">1</Int32>
+      <Int32 type="System.Int32">3</Int32>
+    </KeyValuePair>
+  </hashTable>
   <Age>0</Age>
 </Person>

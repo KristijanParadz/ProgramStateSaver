@@ -6,7 +6,7 @@ Person person2 = new Person("John", "Doe", 25);
 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
 string filePath = Path.Combine(projectRoot, "person.xml");
 
-//person.WriteXML(filePath);
+person.WriteXML(filePath);
 person.ReadXML(filePath);
 
 Console.WriteLine("");
@@ -18,5 +18,5 @@ Console.WriteLine("");
 //    Console.WriteLine(i);
 
 //foreach (var list in person.matrix )
-  //  foreach (var item in list)
-    //    Console.WriteLine(item.ToString());
+//  foreach (var item in list)
+//    Console.WriteLine(item.ToString());
