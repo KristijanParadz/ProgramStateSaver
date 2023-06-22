@@ -116,7 +116,6 @@ namespace ProgramStateSaver
 
         private void WriteArray(Array array, XmlWriter writer, Type type)
         {
-            if (array.Length == 0) return;
             Type arrayType = type.GetElementType()!;
             writer.WriteAttributeString("type", arrayType.FullName);
             foreach (var element in array)
@@ -143,13 +142,12 @@ namespace ProgramStateSaver
                 writer.WriteStartElement("KeyValuePair");
                 WriteValue(entry.Key, writer, entry.Key.GetType(), "default", true);
                 WriteValue(entry.Value!, writer, entry.Value!.GetType(), "default", true);
-                writer.WriteEndElement();
+                writer.WriteFullEndElement();
             }
         }
 
         private void WriteGenericDictionary(IDictionary dictionary, XmlWriter writer, Type type)
         {
-            if (dictionary.Count == 0) return;
             var genericArguments = type.GetGenericArguments();
             Type keyType = genericArguments[0];
             Type valueType = genericArguments[1];
@@ -158,7 +156,7 @@ namespace ProgramStateSaver
                 writer.WriteStartElement("KeyValuePair");
                 WriteValue(entry.Key, writer, keyType);
                 WriteValue(entry.Value!, writer, valueType);
-                writer.WriteEndElement();
+                writer.WriteFullEndElement();
             }
         }
 
@@ -220,7 +218,7 @@ namespace ProgramStateSaver
             else
                 WriteNonGeneric(value, writer, type);
 
-            writer.WriteEndElement();
+            writer.WriteFullEndElement();
         }
 
         public void WriteXML(string filePath)
@@ -257,7 +255,7 @@ namespace ProgramStateSaver
 
                     WriteValue(value, writer, type, name);
                 }
-                writer.WriteEndElement();
+                writer.WriteFullEndElement();
                 writer.Flush();
             }
         }
