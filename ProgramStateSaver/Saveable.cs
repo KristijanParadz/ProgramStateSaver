@@ -109,9 +109,16 @@ namespace ProgramStateSaver
             return false;
         }
 
+        private void AddToCachedTypes(string keyword, Type type)
+        {
+            if (CachedTypes.ContainsKey(keyword))
+                return;
+            CachedTypes[keyword] = type;
+        }
+
         private Type GetTypeFromKeyword(string keyword)
         {
-            return CachedTypes.ContainsKey(keyword) ? CachedTypes[keyword] : Type.GetType(keyword)!;
+            return CachedTypes[keyword];
         }
 
 
@@ -163,7 +170,7 @@ namespace ProgramStateSaver
         private void WriteNonGenericEnumerable(IEnumerable enumerable, XmlWriter writer)
         {
             foreach (var element in enumerable)
-                WriteValue(element,writer,element.GetType(), "default", true);
+                WriteValue(element,writer, element.GetType(), "default", true);
         }
 
         private void WriteGenericEnumerable(IEnumerable enumerable, XmlWriter writer, Type type)
@@ -235,6 +242,9 @@ namespace ProgramStateSaver
 
         private void WriteValue(object value, XmlWriter writer, Type type, string name = "default", bool hasAttribute = false )
         {
+            // cache type for reading
+            AddToCachedTypes(type.FullName!, type);
+
             // set proper name
             string realName = name;
             if (name == "default")
