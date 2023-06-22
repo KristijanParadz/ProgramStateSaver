@@ -10,10 +10,10 @@ namespace ProgramStateSaver
 {
     internal class Person : Saveable
     {
-        [Save]
+        [Save("PatternMatchName")]
         public string FirstName;
 
-        [Save]
+        [Save(".NotMatch")]
         public string LastName;
 
         [Save]

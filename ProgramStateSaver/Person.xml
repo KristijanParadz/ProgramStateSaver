@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Person>
-  <FirstName>John</FirstName>
+  <PatternMatchName>Jack</PatternMatchName>
   <LastName>King</LastName>
   <Number>13</Number>
   <lista>
@@ -108,16 +108,16 @@
   </nonGenericSortedList>
   <hashTable>
     <KeyValuePair>
-      <String type="System.String">dyfbdyfcb</String>
-      <Boolean type="System.Boolean">true</Boolean>
-    </KeyValuePair>
-    <KeyValuePair>
       <Int32 type="System.Int32">2</Int32>
       <String type="System.String">dsvg</String>
     </KeyValuePair>
     <KeyValuePair>
       <Int32 type="System.Int32">1</Int32>
       <Int32 type="System.Int32">3</Int32>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String type="System.String">dyfbdyfcb</String>
+      <Boolean type="System.Boolean">true</Boolean>
     </KeyValuePair>
   </hashTable>
   <Age>0</Age>

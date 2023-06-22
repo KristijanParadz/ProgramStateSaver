@@ -16,7 +16,7 @@ namespace ProgramStateSaver
         // properties for cacheing 
         private Type ElementType { get; set; }
 
-        private static Dictionary<Type,(FieldInfo[], PropertyInfo[])> FieldsAndProperties;
+        private static Dictionary<Type,(Dictionary<string, (FieldInfo,Type)>, Dictionary<string, (PropertyInfo, Type)>)> FieldsAndProperties;
 
         // Keywords from attributes are keys and their types are values
         private static Dictionary<string, Type> CachedTypes;
@@ -26,7 +26,7 @@ namespace ProgramStateSaver
 
         static Saveable()
         {
-            FieldsAndProperties = new Dictionary<Type, (FieldInfo[], PropertyInfo[])>();
+            FieldsAndProperties = new Dictionary<Type, (Dictionary<string, (FieldInfo, Type)>, Dictionary<string, (PropertyInfo, Type)>)>();
             SaveAttributeType = typeof(SaveAttribute);
             CachedTypes = new Dictionary<string, Type>
             {
@@ -43,10 +43,48 @@ namespace ProgramStateSaver
             // if type of this object has been saved before, it already has fields and properties cached 
             if (FieldsAndProperties.ContainsKey(ElementType))
                 return;
-            // if it wasn't saved yet, cache fields and properties
-            var fields = ElementType.GetFields().Where(field => field.IsDefined(SaveAttributeType)).ToArray();
-            var properties = ElementType.GetProperties().Where(property => property.IsDefined(SaveAttributeType)).ToArray();
-            FieldsAndProperties[ElementType] = (fields, properties);
+            // if it wasn't saved yet, cache fields and properties and their types
+            var fields = ElementType.GetFields();
+            var properties = ElementType.GetProperties();
+            Dictionary<string, (FieldInfo, Type)> fieldDictionary = new Dictionary<string, (FieldInfo, Type)>();
+            Dictionary<string, (PropertyInfo, Type)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type)>();
+            foreach (var field in fields)
+            {
+                if (!field.IsDefined(SaveAttributeType))
+                    continue;
+
+                // save attribute is defined
+
+                // if field has custom name cache that instead of Field.Name 
+                var saveAttribute = field.CustomAttributes.Where(customAttr => customAttr.AttributeType == SaveAttributeType).First();
+                bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
+                    Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                string nameToCache = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : field.Name;
+
+                if (fieldDictionary.ContainsKey(nameToCache))
+                    throw new Exception($"{nameToCache} is already used by some other field or property");
+                fieldDictionary.Add(nameToCache, (field, field.FieldType));
+            }
+
+            foreach (var property in properties)
+            {
+                if (!property.IsDefined(SaveAttributeType))
+                    continue;
+
+                // save attribute is defined
+
+                // if property has custom name cache that instead of Property.Name
+                var saveAttribute = property.CustomAttributes.Where(customAttr => customAttr.AttributeType == SaveAttributeType).First();
+                bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
+                    Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+                string nameToCache = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : property.Name;
+
+                if (fieldDictionary.ContainsKey(nameToCache) || propertyDictionary.ContainsKey(nameToCache))
+                    throw new Exception($"{nameToCache} is already used by some other field or property");
+                propertyDictionary.Add(nameToCache, (property, property.PropertyType));
+            }
+
+            FieldsAndProperties[ElementType] = (fieldDictionary, propertyDictionary);
             
         }
 
@@ -56,7 +94,7 @@ namespace ProgramStateSaver
         }
 
 
-        private (FieldInfo[], PropertyInfo[]) GetFieldsAndProperties(Type type)
+        private (Dictionary<string, (FieldInfo, Type)>, Dictionary<string, (PropertyInfo, Type)>) GetFieldsAndProperties(Type type)
         {
             return (FieldsAndProperties[type].Item1, FieldsAndProperties[type].Item2);
         }
@@ -229,31 +267,21 @@ namespace ProgramStateSaver
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
                 writer.WriteStartElement(ElementType.Name);
-                (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);       
+                (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);       
 
-                foreach (var field in fields)
+                foreach (var entry in fieldDictionary)
                 {
+                    FieldInfo field = entry.Value.Item1;
                     var value = field.GetValue(this);
                     if (value == null) continue;
-                    Type type = field.FieldType;
-                    var saveAttribute = field.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
-                    bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 && 
-                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
-                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : field.Name;
-
-                    WriteValue(value, writer, type, name);
+                    WriteValue(value, writer, entry.Value.Item2, entry.Key);
                 }
-                foreach (var property in properties)
+                foreach (var entry in propertyDictionary)
                 {
+                    PropertyInfo property = entry.Value.Item1;
                     var value = property.GetValue(this);
                     if (value == null) continue;
-                    Type type = property.PropertyType;
-                    var saveAttribute = property.CustomAttributes.Where(customAttr => customAttr.AttributeType == saveAttributeType).First();
-                    bool hasValidCustomName = saveAttribute.ConstructorArguments.Count > 0 &&
-                        Regex.IsMatch(saveAttribute.ConstructorArguments[0].Value!.ToString()!, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
-                    string name = hasValidCustomName ? saveAttribute.ConstructorArguments[0].Value!.ToString()! : property.Name;
-
-                    WriteValue(value, writer, type, name);
+                    WriteValue(value, writer, entry.Value.Item2, entry.Key);
                 }
                 writer.WriteFullEndElement();
                 writer.Flush();
@@ -650,15 +678,13 @@ namespace ProgramStateSaver
             throw new Exception("Unsupported data type");
         }
 
-        private void ReadField(XmlReader reader, FieldInfo field) { 
-            Type fieldType = field.FieldType;
-            field.SetValue(this, ReadValue(reader,fieldType));
+        private void ReadField(XmlReader reader, FieldInfo field, Type type) { 
+            field.SetValue(this, ReadValue(reader,type));
         }
 
-        private void ReadProperty(XmlReader reader, PropertyInfo property)
+        private void ReadProperty(XmlReader reader, PropertyInfo property, Type type)
         {
-            Type propertyType = property.PropertyType;
-            property.SetValue(this, ReadValue(reader, propertyType));
+            property.SetValue(this, ReadValue(reader, type));
         }
 
         private void ReadFieldsAndProperties(XmlReader reader)
@@ -673,20 +699,16 @@ namespace ProgramStateSaver
                 }
 
                 string propertyOrFieldName = reader.LocalName;
-                (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);
-                FieldInfo? field = Array.Find(fields, e => e.Name == propertyOrFieldName); 
-                PropertyInfo? property = Array.Find(properties, e => e.Name == propertyOrFieldName);
-                if (field != null)
-                    ReadField(reader,field);
+                (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);
 
-                else if (property != null)
-                    ReadProperty(reader,property);
+                if(fieldDictionary.ContainsKey(propertyOrFieldName))
+                    ReadField(reader, fieldDictionary[propertyOrFieldName].Item1, fieldDictionary[propertyOrFieldName].Item2);
+
+                else if (propertyDictionary.ContainsKey(propertyOrFieldName))
+                    ReadProperty(reader, propertyDictionary[propertyOrFieldName].Item1, propertyDictionary[propertyOrFieldName].Item2);
 
                 else
-                {
-                    reader.Read();
-                    Console.WriteLine($"Warning, element is not f or p it is {reader.Name}");
-                }
+                    throw new Exception("Invalid xml structure");
             }
             reader.ReadEndElement();
 
@@ -704,9 +726,10 @@ namespace ProgramStateSaver
         // function for testing reading xml
         public void PrintFieldsAndPropertiesAndValues()
         {
-            (FieldInfo[] fields, PropertyInfo[] properties) = GetFieldsAndProperties(ElementType);
-            foreach (FieldInfo field in fields)
+            (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);
+            foreach (var entry in fieldDictionary)
             {
+                var field = entry.Value.Item1;
                 object value = field.GetValue(this)!;
                 if(IsSimple(field.FieldType))
                     Console.WriteLine($"{field.Name}: {field.GetValue(this)}");
@@ -746,8 +769,8 @@ namespace ProgramStateSaver
                 }
             }
 
-            foreach (PropertyInfo property in properties)
-                Console.WriteLine($"{property.Name}: {property.GetValue(this)}");
+            foreach (var entry in propertyDictionary)
+                Console.WriteLine($"{entry.Key}: {entry.Value.Item1.GetValue(this)}");
         }
     }
 }
