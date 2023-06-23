@@ -740,8 +740,9 @@ namespace ProgramStateSaver
             foreach (var entry in fieldDictionary)
             {
                 var field = entry.Value.Item1;
+                Type type = entry.Value.Item2;
                 object value = field.GetValue(this)!;
-                if(IsSimple(field.FieldType))
+                if(IsSimple(type))
                     Console.WriteLine($"{field.Name}: {field.GetValue(this)}");
                 else if(value is ITuple)
                 {
@@ -752,7 +753,7 @@ namespace ProgramStateSaver
                     Console.WriteLine("");
                 }
 
-                else if (field.FieldType == typeof(Stack) || field.FieldType == typeof(Queue))
+                else if (type == typeof(Stack) || type  == typeof(Queue))
                 {
                     Console.WriteLine(field.Name + " ");
                     foreach (var elem in (Stack)value)
