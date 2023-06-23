@@ -46,6 +46,7 @@ namespace ProgramStateSaver
             // if it wasn't saved yet, cache fields and properties and their types
             var fields = ElementType.GetFields();
             var properties = ElementType.GetProperties();
+            // string represents name of member which will be written in xml
             Dictionary<string, (FieldInfo, Type)> fieldDictionary = new Dictionary<string, (FieldInfo, Type)>();
             Dictionary<string, (PropertyInfo, Type)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type)>();
             foreach (var field in fields)
