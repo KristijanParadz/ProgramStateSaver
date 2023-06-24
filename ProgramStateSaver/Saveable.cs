@@ -167,7 +167,11 @@ namespace ProgramStateSaver
 
         private Type GetTypeFromKeyword(string keyword)
         {
-            return CachedTypes[keyword];
+            if(CachedTypes.ContainsKey(keyword))
+                return CachedTypes[keyword];
+            Type type = Type.GetType(keyword)!;
+            CachedTypes[keyword] = type;
+            return type;
         }
 
         private bool IsTuple(Type type)
