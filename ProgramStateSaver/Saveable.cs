@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,22 +12,25 @@ using System.Xml;
 
 namespace ProgramStateSaver
 {
+    using Getter = Func<object, object>;
     public class Saveable
     {
-        // properties for cacheing 
+        // properties for cacheing
+        
         private Type ElementType { get; set; }
 
-        private static Dictionary<Type,(Dictionary<string, (FieldInfo,Type)>, Dictionary<string, (PropertyInfo, Type)>)> FieldsAndProperties;
+        private static Dictionary<Type,(Dictionary<string, (FieldInfo,Type, Getter)>, 
+                                        Dictionary<string, (PropertyInfo, Type, Getter)>)> FieldsAndProperties;
 
         // Keywords from attributes are keys and their types are values
         private static Dictionary<string, Type> CachedTypes;
 
         private static Type SaveAttributeType { get; set; }
 
-
         static Saveable()
         {
-            FieldsAndProperties = new Dictionary<Type, (Dictionary<string, (FieldInfo, Type)>, Dictionary<string, (PropertyInfo, Type)>)>();
+            FieldsAndProperties = new Dictionary<Type, (Dictionary<string, (FieldInfo, Type, Getter)>,
+                                                        Dictionary<string, (PropertyInfo, Type, Getter)>)>();
             SaveAttributeType = typeof(SaveAttribute);
             CachedTypes = new Dictionary<string, Type>
             {
@@ -47,8 +51,12 @@ namespace ProgramStateSaver
             var fields = ElementType.GetFields();
             var properties = ElementType.GetProperties();
             // string represents name of member which will be written in xml
-            Dictionary<string, (FieldInfo, Type)> fieldDictionary = new Dictionary<string, (FieldInfo, Type)>();
-            Dictionary<string, (PropertyInfo, Type)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type)>();
+            Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary = new Dictionary<string, (FieldInfo, Type, Getter)>();
+            Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type, Getter)>();
+
+            var instanceParam = Expression.Parameter(typeof(object));
+            var castedParam = Expression.Convert(instanceParam, ElementType);
+
             foreach (var field in fields)
             {
                 if (!field.IsDefined(SaveAttributeType))
@@ -64,7 +72,13 @@ namespace ProgramStateSaver
 
                 if (fieldDictionary.ContainsKey(nameToCache))
                     throw new Exception($"{nameToCache} is already used by some other field or property");
-                fieldDictionary.Add(nameToCache, (field, field.FieldType));
+
+                var fieldExpr = Expression.Field(castedParam, field);
+                var castedField = Expression.Convert(fieldExpr, typeof(object));
+                var getterLambda = Expression.Lambda<Getter>(castedField, instanceParam);
+                var getter = getterLambda.Compile();
+
+                fieldDictionary.Add(nameToCache, (field, field.FieldType, getter));
             }
 
             foreach (var property in properties)
@@ -82,7 +96,13 @@ namespace ProgramStateSaver
 
                 if (fieldDictionary.ContainsKey(nameToCache) || propertyDictionary.ContainsKey(nameToCache))
                     throw new Exception($"{nameToCache} is already used by some other field or property");
-                propertyDictionary.Add(nameToCache, (property, property.PropertyType));
+
+                var propertyExpr = Expression.Property(castedParam, property);
+                var castedProperty = Expression.Convert(propertyExpr, typeof(object));
+                var getterLambda = Expression.Lambda<Getter>(castedProperty, instanceParam);
+                var getter = getterLambda.Compile();
+
+                propertyDictionary.Add(nameToCache, (property, property.PropertyType, getter));
             }
 
             FieldsAndProperties[ElementType] = (fieldDictionary, propertyDictionary);
@@ -95,7 +115,7 @@ namespace ProgramStateSaver
         }
 
 
-        private (Dictionary<string, (FieldInfo, Type)>, Dictionary<string, (PropertyInfo, Type)>) GetFieldsAndProperties(Type type)
+        private (Dictionary<string, (FieldInfo, Type, Getter)>, Dictionary<string, (PropertyInfo, Type, Getter)>) GetFieldsAndProperties(Type type)
         {
             return (FieldsAndProperties[type].Item1, FieldsAndProperties[type].Item2);
         }
@@ -121,7 +141,6 @@ namespace ProgramStateSaver
         {
             return CachedTypes[keyword];
         }
-
 
         private bool IsTuple(Type type)
         {
@@ -278,19 +297,20 @@ namespace ProgramStateSaver
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
                 writer.WriteStartElement(ElementType.Name);
-                (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);       
+                (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary, 
+                 Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);       
 
                 foreach (var entry in fieldDictionary)
                 {
-                    FieldInfo field = entry.Value.Item1;
-                    var value = field.GetValue(this);
+                    Getter getter = entry.Value.Item3;
+                    var value = getter(this);
                     if (value == null) continue;
                     WriteValue(value, writer, entry.Value.Item2, entry.Key);
                 }
                 foreach (var entry in propertyDictionary)
                 {
-                    PropertyInfo property = entry.Value.Item1;
-                    var value = property.GetValue(this);
+                    Getter getter = entry.Value.Item3;
+                    var value = getter(this);
                     if (value == null) continue;
                     WriteValue(value, writer, entry.Value.Item2, entry.Key);
                 }
@@ -710,7 +730,8 @@ namespace ProgramStateSaver
                 }
 
                 string propertyOrFieldName = reader.LocalName;
-                (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);
+                (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary,
+                 Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
 
                 if(fieldDictionary.ContainsKey(propertyOrFieldName))
                     ReadField(reader, fieldDictionary[propertyOrFieldName].Item1, fieldDictionary[propertyOrFieldName].Item2);
@@ -737,14 +758,17 @@ namespace ProgramStateSaver
         // function for testing reading xml
         public void PrintFieldsAndPropertiesAndValues()
         {
-            (Dictionary<string, (FieldInfo, Type)> fieldDictionary, Dictionary<string, (PropertyInfo, Type)> propertyDictionary) = GetFieldsAndProperties(ElementType);
+            (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary,
+             Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
             foreach (var entry in fieldDictionary)
             {
                 var field = entry.Value.Item1;
                 Type type = entry.Value.Item2;
-                object value = field.GetValue(this)!;
-                if(IsSimple(type))
-                    Console.WriteLine($"{field.Name}: {field.GetValue(this)}");
+                Getter getter = entry.Value.Item3;
+                var value = getter(this);
+
+                if (IsSimple(type))
+                    Console.WriteLine($"{field.Name}: {value}");
                 else if(value is ITuple)
                 {
                     Console.WriteLine(field.Name + " ");
@@ -782,7 +806,11 @@ namespace ProgramStateSaver
             }
 
             foreach (var entry in propertyDictionary)
-                Console.WriteLine($"{entry.Key}: {entry.Value.Item1.GetValue(this)}");
+            {
+                Getter getter = entry.Value.Item3;
+                var value = getter(this);
+                Console.WriteLine($"{entry.Key}: {value}");
+            }
         }
     }
 }
