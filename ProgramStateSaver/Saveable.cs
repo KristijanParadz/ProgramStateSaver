@@ -13,14 +13,15 @@ using System.Xml;
 namespace ProgramStateSaver
 {
     using Getter = Func<object, object>;
+    using Setter = Action<object, object>;
     public class Saveable
     {
         // properties for cacheing
         
         private Type ElementType { get; set; }
 
-        private static Dictionary<Type,(Dictionary<string, (FieldInfo,Type, Getter)>, 
-                                        Dictionary<string, (PropertyInfo, Type, Getter)>)> FieldsAndProperties;
+        private static Dictionary<Type,(Dictionary<string, (FieldInfo,Type, Getter, Setter)>, 
+                                        Dictionary<string, (PropertyInfo, Type, Getter, Setter)>)> FieldsAndProperties;
 
         // Keywords from attributes are keys and their types are values
         private static Dictionary<string, Type> CachedTypes;
@@ -29,8 +30,8 @@ namespace ProgramStateSaver
 
         static Saveable()
         {
-            FieldsAndProperties = new Dictionary<Type, (Dictionary<string, (FieldInfo, Type, Getter)>,
-                                                        Dictionary<string, (PropertyInfo, Type, Getter)>)>();
+            FieldsAndProperties = new Dictionary<Type, (Dictionary<string, (FieldInfo, Type, Getter, Setter)>,
+                                                        Dictionary<string, (PropertyInfo, Type, Getter, Setter)>)>();
             SaveAttributeType = typeof(SaveAttribute);
             CachedTypes = new Dictionary<string, Type>
             {
@@ -51,11 +52,12 @@ namespace ProgramStateSaver
             var fields = ElementType.GetFields();
             var properties = ElementType.GetProperties();
             // string represents name of member which will be written in xml
-            Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary = new Dictionary<string, (FieldInfo, Type, Getter)>();
-            Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type, Getter)>();
+            Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary = new Dictionary<string, (FieldInfo, Type, Getter, Setter)>();
+            Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type, Getter, Setter)>();
 
-            var instanceParam = Expression.Parameter(typeof(object));
-            var castedParam = Expression.Convert(instanceParam, ElementType);
+            ParameterExpression instanceParam = Expression.Parameter(typeof(object));
+            UnaryExpression castedParam = Expression.Convert(instanceParam, ElementType);
+            ParameterExpression valueParam = Expression.Parameter(typeof(object));
 
             foreach (var field in fields)
             {
@@ -73,12 +75,14 @@ namespace ProgramStateSaver
                 if (fieldDictionary.ContainsKey(nameToCache))
                     throw new Exception($"{nameToCache} is already used by some other field or property");
 
+                Type fieldType = field.FieldType;
+
                 var fieldExpr = Expression.Field(castedParam, field);
                 var castedField = Expression.Convert(fieldExpr, typeof(object));
                 var getterLambda = Expression.Lambda<Getter>(castedField, instanceParam);
-                var getter = getterLambda.Compile();
-
-                fieldDictionary.Add(nameToCache, (field, field.FieldType, getter));
+                Getter getter = getterLambda.Compile();
+                Setter setter = CreateSetterForField(field, fieldType, instanceParam, castedParam, valueParam);
+                fieldDictionary.Add(nameToCache, (field, fieldType, getter, setter));
             }
 
             foreach (var property in properties)
@@ -97,16 +101,40 @@ namespace ProgramStateSaver
                 if (fieldDictionary.ContainsKey(nameToCache) || propertyDictionary.ContainsKey(nameToCache))
                     throw new Exception($"{nameToCache} is already used by some other field or property");
 
+                Type propertyType = property.PropertyType;
+
                 var propertyExpr = Expression.Property(castedParam, property);
                 var castedProperty = Expression.Convert(propertyExpr, typeof(object));
                 var getterLambda = Expression.Lambda<Getter>(castedProperty, instanceParam);
-                var getter = getterLambda.Compile();
+                Getter getter = getterLambda.Compile();
+                Setter setter = CreateSetterForProperty(property, propertyType, instanceParam, castedParam, valueParam);
 
-                propertyDictionary.Add(nameToCache, (property, property.PropertyType, getter));
+                propertyDictionary.Add(nameToCache, (property, propertyType, getter, setter));
             }
 
             FieldsAndProperties[ElementType] = (fieldDictionary, propertyDictionary);
             
+        }
+
+        private Setter CreateSetterForField(FieldInfo fieldInfo, Type fieldType, ParameterExpression instanceParam, UnaryExpression castedParam, ParameterExpression valueParam)
+        {
+            var castedValue = Expression.Convert(valueParam, fieldType);
+            var fieldExpr = Expression.Field(castedParam, fieldInfo);
+            BinaryExpression assignExpr = Expression.Assign(fieldExpr, castedValue);
+            LambdaExpression lambdaExpr = Expression.Lambda<Setter>(assignExpr, instanceParam, valueParam);
+            Setter setter = (Setter)lambdaExpr.Compile();
+            return setter;
+        }
+
+        private Setter CreateSetterForProperty(PropertyInfo propertyInfo, Type propertyType, ParameterExpression instanceParam,
+                                               UnaryExpression castedParam, ParameterExpression valueParam)
+        {
+            var castedValue = Expression.Convert(valueParam, propertyType);
+            var fieldExpr = Expression.Property(castedParam, propertyInfo);
+            BinaryExpression assignExpr = Expression.Assign(fieldExpr, castedValue);
+            LambdaExpression lambdaExpr = Expression.Lambda<Setter>(assignExpr, instanceParam, valueParam);
+            Setter setter = (Setter)lambdaExpr.Compile();
+            return setter;
         }
 
         private bool IsSimple(Type type)
@@ -115,7 +143,7 @@ namespace ProgramStateSaver
         }
 
 
-        private (Dictionary<string, (FieldInfo, Type, Getter)>, Dictionary<string, (PropertyInfo, Type, Getter)>) GetFieldsAndProperties(Type type)
+        private (Dictionary<string, (FieldInfo, Type, Getter, Setter)>, Dictionary<string, (PropertyInfo, Type, Getter, Setter)>) GetFieldsAndProperties(Type type)
         {
             return (FieldsAndProperties[type].Item1, FieldsAndProperties[type].Item2);
         }
@@ -297,8 +325,8 @@ namespace ProgramStateSaver
             using (XmlWriter writer = XmlWriter.Create(filePath,settings))
             {
                 writer.WriteStartElement(ElementType.Name);
-                (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary, 
-                 Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);       
+                (Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary, 
+                 Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary) = GetFieldsAndProperties(ElementType);       
 
                 foreach (var entry in fieldDictionary)
                 {
@@ -709,13 +737,13 @@ namespace ProgramStateSaver
             throw new Exception("Unsupported data type");
         }
 
-        private void ReadField(XmlReader reader, FieldInfo field, Type type) { 
-            field.SetValue(this, ReadValue(reader,type));
+        private void ReadField(XmlReader reader, Type type, Setter setter) { 
+            setter(this, ReadValue(reader,type));
         }
 
-        private void ReadProperty(XmlReader reader, PropertyInfo property, Type type)
+        private void ReadProperty(XmlReader reader, Type type, Setter setter)
         {
-            property.SetValue(this, ReadValue(reader, type));
+            setter(this, ReadValue(reader, type));
         }
 
         private void ReadFieldsAndProperties(XmlReader reader)
@@ -730,14 +758,14 @@ namespace ProgramStateSaver
                 }
 
                 string propertyOrFieldName = reader.LocalName;
-                (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary,
-                 Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
+                (Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary,
+                 Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
 
                 if(fieldDictionary.ContainsKey(propertyOrFieldName))
-                    ReadField(reader, fieldDictionary[propertyOrFieldName].Item1, fieldDictionary[propertyOrFieldName].Item2);
+                    ReadField(reader, fieldDictionary[propertyOrFieldName].Item2, fieldDictionary[propertyOrFieldName].Item4);
 
                 else if (propertyDictionary.ContainsKey(propertyOrFieldName))
-                    ReadProperty(reader, propertyDictionary[propertyOrFieldName].Item1, propertyDictionary[propertyOrFieldName].Item2);
+                    ReadProperty(reader, propertyDictionary[propertyOrFieldName].Item2, propertyDictionary[propertyOrFieldName].Item4);
 
                 else
                     throw new Exception("Invalid xml structure");
@@ -758,8 +786,8 @@ namespace ProgramStateSaver
         // function for testing reading xml
         public void PrintFieldsAndPropertiesAndValues()
         {
-            (Dictionary<string, (FieldInfo, Type, Getter)> fieldDictionary,
-             Dictionary<string, (PropertyInfo, Type, Getter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
+            (Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary,
+             Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
             foreach (var entry in fieldDictionary)
             {
                 var field = entry.Value.Item1;
