@@ -766,6 +766,8 @@ namespace ProgramStateSaver
 
         private void ReadFieldsAndProperties(XmlReader reader)
         {
+            (Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary,
+             Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
             while (reader.NodeType != XmlNodeType.EndElement)
             {
                 if (reader.NodeType != XmlNodeType.Element)
@@ -776,8 +778,6 @@ namespace ProgramStateSaver
                 }
 
                 string propertyOrFieldName = reader.LocalName;
-                (Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary,
-                 Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary) = GetFieldsAndProperties(ElementType);
 
                 if(fieldDictionary.ContainsKey(propertyOrFieldName))
                     ReadField(reader, fieldDictionary[propertyOrFieldName].Item2, fieldDictionary[propertyOrFieldName].Item4);
