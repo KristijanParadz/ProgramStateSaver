@@ -55,6 +55,7 @@ namespace ProgramStateSaver
             Dictionary<string, (FieldInfo, Type, Getter, Setter)> fieldDictionary = new Dictionary<string, (FieldInfo, Type, Getter, Setter)>();
             Dictionary<string, (PropertyInfo, Type, Getter, Setter)> propertyDictionary = new Dictionary<string, (PropertyInfo, Type, Getter, Setter)>();
 
+            // prepare params for getters and setters
             ParameterExpression instanceParam = Expression.Parameter(typeof(object));
             UnaryExpression castedParam = Expression.Convert(instanceParam, ElementType);
             ParameterExpression valueParam = Expression.Parameter(typeof(object));
@@ -77,11 +78,9 @@ namespace ProgramStateSaver
 
                 Type fieldType = field.FieldType;
 
-                var fieldExpr = Expression.Field(castedParam, field);
-                var castedField = Expression.Convert(fieldExpr, typeof(object));
-                var getterLambda = Expression.Lambda<Getter>(castedField, instanceParam);
-                Getter getter = getterLambda.Compile();
+                Getter getter = CreateGetterForField(field,instanceParam,castedParam);
                 Setter setter = CreateSetterForField(field, fieldType, instanceParam, castedParam, valueParam);
+
                 fieldDictionary.Add(nameToCache, (field, fieldType, getter, setter));
             }
 
@@ -103,10 +102,7 @@ namespace ProgramStateSaver
 
                 Type propertyType = property.PropertyType;
 
-                var propertyExpr = Expression.Property(castedParam, property);
-                var castedProperty = Expression.Convert(propertyExpr, typeof(object));
-                var getterLambda = Expression.Lambda<Getter>(castedProperty, instanceParam);
-                Getter getter = getterLambda.Compile();
+                Getter getter = CreateGetterForProperty(property, instanceParam, castedParam);
                 Setter setter = CreateSetterForProperty(property, propertyType, instanceParam, castedParam, valueParam);
 
                 propertyDictionary.Add(nameToCache, (property, propertyType, getter, setter));
@@ -114,6 +110,24 @@ namespace ProgramStateSaver
 
             FieldsAndProperties[ElementType] = (fieldDictionary, propertyDictionary);
             
+        }
+
+        private Getter CreateGetterForField(FieldInfo fieldInfo, ParameterExpression instanceParam, UnaryExpression castedParam)
+        {
+            var fieldExpr = Expression.Field(castedParam, fieldInfo);
+            var casted = Expression.Convert(fieldExpr, typeof(object));
+            var getterLambda = Expression.Lambda<Getter>(casted, instanceParam);
+            Getter getter = getterLambda.Compile();
+            return getter;
+        }
+
+        private Getter CreateGetterForProperty(PropertyInfo propertyInfo, ParameterExpression instanceParam, UnaryExpression castedParam)
+        {
+            var propertyExpr = Expression.Property(castedParam, propertyInfo);
+            var casted = Expression.Convert(propertyExpr, typeof(object));
+            var getterLambda = Expression.Lambda<Getter>(casted, instanceParam);
+            Getter getter = getterLambda.Compile();
+            return getter;
         }
 
         private Setter CreateSetterForField(FieldInfo fieldInfo, Type fieldType, ParameterExpression instanceParam, UnaryExpression castedParam, ParameterExpression valueParam)
@@ -130,8 +144,8 @@ namespace ProgramStateSaver
                                                UnaryExpression castedParam, ParameterExpression valueParam)
         {
             var castedValue = Expression.Convert(valueParam, propertyType);
-            var fieldExpr = Expression.Property(castedParam, propertyInfo);
-            BinaryExpression assignExpr = Expression.Assign(fieldExpr, castedValue);
+            var propertyExpr = Expression.Property(castedParam, propertyInfo);
+            BinaryExpression assignExpr = Expression.Assign(propertyExpr, castedValue);
             LambdaExpression lambdaExpr = Expression.Lambda<Setter>(assignExpr, instanceParam, valueParam);
             Setter setter = (Setter)lambdaExpr.Compile();
             return setter;
