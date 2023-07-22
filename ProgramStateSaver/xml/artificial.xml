@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Person>
+<Artifical>
   <PatternMatchName>John</PatternMatchName>
   <LastName>King</LastName>
   <Number>13</Number>
-  <lista>
+  <ListOfInt>
     <Int32>1</Int32>
     <Int32>2</Int32>
     <Int32>3</Int32>
-  </lista>
-  <matrix>
+  </ListOfInt>
+  <Matrix>
     <List>
       <Int32>1</Int32>
       <Int32>2</Int32>
@@ -19,30 +19,30 @@
       <Int32>5</Int32>
       <Int32>6</Int32>
     </List>
-  </matrix>
-  <genericStack>
+  </Matrix>
+  <GenericStack>
     <Int32>2</Int32>
     <Int32>1</Int32>
-  </genericStack>
-  <genericQueue>
+  </GenericStack>
+  <GenericQueue>
     <Int32>1</Int32>
     <Int32>2</Int32>
-  </genericQueue>
-  <hashSet>
-    <Int32>1</Int32>
-    <Int32>2</Int32>
-    <Int32>3</Int32>
-  </hashSet>
-  <sortedSet>
+  </GenericQueue>
+  <HashSet>
     <Int32>1</Int32>
     <Int32>2</Int32>
     <Int32>3</Int32>
-  </sortedSet>
-  <genericTuple>
+  </HashSet>
+  <SortedSet>
+    <Int32>1</Int32>
+    <Int32>2</Int32>
+    <Int32>3</Int32>
+  </SortedSet>
+  <GenericTuple>
     <Int32>1</Int32>
     <String>dsvgc</String>
-  </genericTuple>
-  <dictionary>
+  </GenericTuple>
+  <Dictionary>
     <KeyValuePair>
       <Int32>1</Int32>
       <List>
@@ -58,8 +58,8 @@
         <Int32>5</Int32>
       </List>
     </KeyValuePair>
-  </dictionary>
-  <genericSortedList>
+  </Dictionary>
+  <GenericSortedList>
     <KeyValuePair>
       <Int32>1</Int32>
       <String>dgbv</String>
@@ -68,8 +68,8 @@
       <Int32>2</Int32>
       <String>adf</String>
     </KeyValuePair>
-  </genericSortedList>
-  <arrayLista>
+  </GenericSortedList>
+  <ArrayList>
     <String type="System.String">asfd</String>
     <Int32 type="System.Int32">1</Int32>
     <Boolean type="System.Boolean">true</Boolean>
@@ -82,21 +82,21 @@
       <Int32>1</Int32>
       <Int32>2</Int32>
     </HashSet>
-  </arrayLista>
-  <array type="System.Int32">
+  </ArrayList>
+  <Array type="System.Int32">
     <Int32>1</Int32>
     <Int32>2</Int32>
     <Int32>3</Int32>
-  </array>
-  <nonGenericStack>
+  </Array>
+  <NonGenericStack>
     <Queue type="System.Collections.Queue">
       <Int32 type="System.Int32">1</Int32>
       <String type="System.String">bf</String>
     </Queue>
     <String type="System.String">adfscv</String>
     <Int32 type="System.Int32">1</Int32>
-  </nonGenericStack>
-  <nonGenericSortedList>
+  </NonGenericStack>
+  <NonGenericSortedList>
     <KeyValuePair>
       <Int32 type="System.Int32">1</Int32>
       <String type="System.String">dgbv</String>
@@ -105,8 +105,8 @@
       <Int32 type="System.Int32">2</Int32>
       <String type="System.String">adf</String>
     </KeyValuePair>
-  </nonGenericSortedList>
-  <hashTable>
+  </NonGenericSortedList>
+  <HashTable>
     <KeyValuePair>
       <Int32 type="System.Int32">2</Int32>
       <String type="System.String">dsvg</String>
@@ -119,6 +119,6 @@
       <String type="System.String">dyfbdyfcb</String>
       <Boolean type="System.Boolean">true</Boolean>
     </KeyValuePair>
-  </hashTable>
-  <Age>0</Age>
-</Person>
+  </HashTable>
+  <Age>28</Age>
+</Artifical>
