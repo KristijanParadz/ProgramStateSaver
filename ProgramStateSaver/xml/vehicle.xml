@@ -14,20 +14,20 @@
   <PassengerCapacity>5</PassengerCapacity>
   <RandomInformation>
     <KeyValuePair>
-      <String type="System.String">Engine</String>
-      <String type="System.String">Some engine</String>
-    </KeyValuePair>
-    <KeyValuePair>
-      <String type="System.String">Sold</String>
-      <Boolean type="System.Boolean">true</Boolean>
+      <String type="System.String">Year</String>
+      <Int32 type="System.Int32">2017</Int32>
     </KeyValuePair>
     <KeyValuePair>
       <String type="System.String">FuelCapacity</String>
       <Single type="System.Single">60.3</Single>
     </KeyValuePair>
     <KeyValuePair>
-      <String type="System.String">Year</String>
-      <Int32 type="System.Int32">2017</Int32>
+      <String type="System.String">Engine</String>
+      <String type="System.String">Some engine</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String type="System.String">Sold</String>
+      <Boolean type="System.Boolean">true</Boolean>
     </KeyValuePair>
   </RandomInformation>
 </Vehicle>

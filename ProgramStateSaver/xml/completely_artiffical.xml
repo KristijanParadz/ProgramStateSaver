@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CompletelyArtifficial>
+  <Queue>
+    <SortedList>
+      <KeyValuePair>
+        <Dictionary>
+          <KeyValuePair>
+            <Int32>1</Int32>
+            <List>
+              <ArrayList>
+                <String type="System.String">randomString</String>
+                <Int32 type="System.Int32">5</Int32>
+                <Double type="System.Double">1.3</Double>
+              </ArrayList>
+              <ArrayList>
+                <Single type="System.Single">1.5</Single>
+                <Decimal type="System.Decimal">2.7</Decimal>
+              </ArrayList>
+            </List>
+          </KeyValuePair>
+          <KeyValuePair>
+            <Int32>5</Int32>
+            <List>
+              <ArrayList>
+                <String type="System.String">randomString</String>
+                <Int32 type="System.Int32">5</Int32>
+                <Double type="System.Double">1.3</Double>
+              </ArrayList>
+              <ArrayList>
+                <Single type="System.Single">1.5</Single>
+                <Decimal type="System.Decimal">2.7</Decimal>
+              </ArrayList>
+            </List>
+          </KeyValuePair>
+        </Dictionary>
+        <HashSet>
+          <SortedSet>
+            <Int32>1</Int32>
+            <Int32>2</Int32>
+            <Int32>3</Int32>
+          </SortedSet>
+          <SortedSet>
+            <Int32>4</Int32>
+            <Int32>5</Int32>
+            <Int32>6</Int32>
+          </SortedSet>
+        </HashSet>
+      </KeyValuePair>
+    </SortedList>
+  </Queue>
+</CompletelyArtifficial>

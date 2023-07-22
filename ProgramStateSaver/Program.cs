@@ -27,3 +27,8 @@ Vehicle vehicle = new Vehicle();
 filePath = Path.Combine(projectRoot, "xml/vehicle.xml");
 vehicle.WriteXML(filePath);
 vehicle.ReadXML(filePath);
+
+CompletelyArtifficial completelyArtifficial = new CompletelyArtifficial();
+filePath = Path.Combine(projectRoot, "xml/completely_artiffical.xml");
+completelyArtifficial.WriteXML(filePath);
+completelyArtifficial.ReadXML(filePath);
