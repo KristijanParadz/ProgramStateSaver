@@ -29,6 +29,7 @@ namespace ProgramStateSaver
                                                                                       new List<int> { 8, 9, 10 }
                                                                                     };
 
+        [Save]
         public Dictionary<string,string> Details { get; set; } = new Dictionary<string, string>();
 
         public Person(string firstName, string lastName, int age, List<string> hobbies)

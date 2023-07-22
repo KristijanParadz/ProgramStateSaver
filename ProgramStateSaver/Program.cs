@@ -1,6 +1,5 @@
 ﻿using ProgramStateSaver;
 
-
 Artifical artificial = new Artifical("John", "King", 28);
 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName;
 string filePath = Path.Combine(projectRoot, "xml/artificial.xml");
@@ -22,3 +21,9 @@ Person person = new Person("John", "Doe", 27, new List<string> { "Football", "Ch
 filePath = Path.Combine(projectRoot, "xml/person.xml");
 person.WriteXML(filePath);
 person.ReadXML(filePath);
+
+
+Vehicle vehicle = new Vehicle();
+filePath = Path.Combine(projectRoot, "xml/vehicle.xml");
+vehicle.WriteXML(filePath);
+vehicle.ReadXML(filePath);

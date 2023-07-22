@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -306,6 +307,29 @@ namespace ProgramStateSaver
                 WriteTuple((ITuple)value, writer);
         }
 
+        private void WriteSimple(XmlWriter writer, Type type, object value) 
+        {
+            if (type == typeof(bool))
+                writer.WriteString(value.ToString()!.ToLower());
+            else if (type == typeof(float))
+            {
+                float convertedValue = (float)value;
+                writer.WriteString(convertedValue.ToString(CultureInfo.InvariantCulture));
+            }
+            else if (type == typeof(double))
+            {
+                double convertedValue = (double)value;
+                writer.WriteString(convertedValue.ToString(CultureInfo.InvariantCulture));
+            }
+            else if (type == typeof(decimal))
+            {
+                decimal convertedValue = (decimal)value;
+                writer.WriteString(convertedValue.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+                writer.WriteString(value.ToString());
+        }
+
         private void WriteValue(object value, XmlWriter writer, Type type, string name = "default", bool hasAttribute = false )
         {
             // cache type for reading
@@ -323,7 +347,7 @@ namespace ProgramStateSaver
 
             // type is simple
             if (IsSimple(type))
-                writer.WriteString(type == typeof(bool) ? value.ToString()!.ToLower() : value.ToString());
+                WriteSimple(writer, type, value);
 
             // type is complex generic
             else if (type.IsGenericType)

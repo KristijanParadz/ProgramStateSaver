@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Vehicle>
+  <Manufacturer>Audi</Manufacturer>
+  <Model>A3</Model>
+  <Colors>
+    <String>Yellow</String>
+    <String>Black</String>
+    <String>Red</String>
+    <String>Blue</String>
+  </Colors>
+  <CurrentSpeed>87.5</CurrentSpeed>
+  <EngineStarted>true</EngineStarted>
+  <EngineStrength>120.93</EngineStrength>
+  <PassengerCapacity>5</PassengerCapacity>
+  <RandomInformation>
+    <KeyValuePair>
+      <String type="System.String">Engine</String>
+      <String type="System.String">Some engine</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String type="System.String">Sold</String>
+      <Boolean type="System.Boolean">true</Boolean>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String type="System.String">FuelCapacity</String>
+      <Single type="System.Single">60.3</Single>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String type="System.String">Year</String>
+      <Int32 type="System.Int32">2017</Int32>
+    </KeyValuePair>
+  </RandomInformation>
+</Vehicle>

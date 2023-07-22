@@ -26,4 +26,14 @@
       <Int32>10</Int32>
     </List>
   </FavouriteNumbers>
+  <Details>
+    <KeyValuePair>
+      <String>gender</String>
+      <String>Male</String>
+    </KeyValuePair>
+    <KeyValuePair>
+      <String>occupation</String>
+      <String>Software Enginner</String>
+    </KeyValuePair>
+  </Details>
 </Person>
